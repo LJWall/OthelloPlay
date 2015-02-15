@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-from othelo import OtheloBoardClass, InvalidMoveError
+from othelo import OtheloBoardClass, InvalidMoveError, auto_play_move
 import unittest
         
 
@@ -40,6 +40,16 @@ class TestOtheloBoardClass(unittest.TestCase):
         game = OtheloBoardClass(6)
         with self.assertRaises(InvalidMoveError):
             game.play_move(3, 1)
+            
+class TestAutoPlay(unittest.TestCase):
+    def test_auto_play(self):
+        game = OtheloBoardClass(6)
+        auto_play_move(game)
+        self.assertEqual(game.current_turn, 'O')
+        self.assertEqual(len(game), 5)
+        auto_play_move(game)
+        self.assertEqual(game.current_turn, 'X')
+        self.assertEqual(len(game), 6)
         
 if __name__ == '__main__':
     unittest.main()
