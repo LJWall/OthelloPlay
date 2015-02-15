@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-from othelo import OthelloBoardClass, InvalidMoveError, auto_play_move
+from othello import OthelloBoardClass, InvalidMoveError, auto_play_move
 import unittest
         
 
