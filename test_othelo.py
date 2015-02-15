@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 from othelo import OtheloBoardClass, InvalidMoveError
 import unittest
         
@@ -28,6 +29,17 @@ class TestOtheloBoardClass(unittest.TestCase):
         game = OtheloBoardClass(6)
         with self.assertRaises(InvalidMoveError):
             game.play_move(2,2)
+    
+    def test_play_turns_pieces(self):
+        game = OtheloBoardClass(6)
+        game.play_move(2, 1)
+        self.assertEqual(game[(2, 2)], 'X')
+    
+    
+    def test_play_with_no_turn_raises_error(self):
+        game = OtheloBoardClass(6)
+        with self.assertRaises(InvalidMoveError):
+            game.play_move(3, 1)
         
 if __name__ == '__main__':
     unittest.main()
