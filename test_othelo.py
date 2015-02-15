@@ -41,6 +41,42 @@ class TestOtheloBoardClass(unittest.TestCase):
         with self.assertRaises(InvalidMoveError):
             game.play_move(3, 1)
             
+    def test_get_boundary(self):
+        game = OtheloBoardClass(6)
+        game.play_move(2, 1)
+        self.assertEqual(game.get_boundary(), {(1, 1),(1, 2),(1, 3),(2, 0),(2, 4),(3, 1),(3, 4),(4, 2),(4, 3),})
+        game.clear()
+        game[(5,5)]='X'
+        self.assertEqual(game.get_boundary(), {(4, 5),(5, 4),})
+        
+    def test_bug(self):
+        game = OtheloBoardClass(6)
+        game.clear()
+        game.update({(1,2): 'X',
+                    (1,3): 'X',
+                    (1,4): 'X',
+                    (2,2): 'X',
+                    (2,3): 'O',
+                    (3,1): 'O',
+                    (3,2): 'O',
+                    (3,3): 'O',
+        })
+        with self.assertRaises(InvalidMoveError):
+            game.play_move(1, 5)
+            
+    def test_score(self):
+        game = OtheloBoardClass(6)
+        game.clear()
+        game.update({(1,2): 'X',
+                    (1,3): 'X',
+                    (1,4): 'X',
+                    (2,2): 'X',
+                    (2,3): 'O',
+        })
+        self.assertEqual(game.score(), {'X': 4, 'O': 1})
+        
+        
+            
 class TestAutoPlay(unittest.TestCase):
     def test_auto_play(self):
         game = OtheloBoardClass(6)

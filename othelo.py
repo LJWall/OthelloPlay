@@ -8,11 +8,14 @@ def tuple_offset(t1, t2, k=1):
 
 class InvalidMoveError(Exception):
     pass
+class NoAvailablePlayError(Exception):
+    pass
+
 
 class OtheloBoardClass(dict):
     def __init__(self, size):
         self.players = ('X', 'O')
-        self._size = size
+        self.size = size
         x = size / 2
         self[(x-1, x-1)] = self.players[1]
         self[(x, x)] = self.players[1]
@@ -23,15 +26,25 @@ class OtheloBoardClass(dict):
     
     def __str__(self):
         ret = ''
-        for y in range(self._size):
-            for x in range(self._size):
+        for y in range(self.size):
+            for x in range(self.size):
                 ret +=  self.get((x,y), '-') + ' '
             ret += '\n'
         return ret
             
     
-    def play_move(self, x, y):
-        if x<0 or x>=self._size or y<0 or y>=self._size:
+    def get_boundary(self):
+        ret = set()
+        for x in self:
+            for vec in [(0,1),(1,0),(0,-1),(-1,0)]:
+                y = tuple_offset(x, vec)
+                if y not in self and y[0] >=0 and y[0] < self.size and y[1] >=0 and y[1] < self.size:
+                    ret.add(y)
+        return ret
+    
+    
+    def play_move(self, x, y, test_only=False):
+        if x<0 or x>=self.size or y<0 or y>=self.size:
             raise KeyError
         if self.get((x,y), 0):
             raise InvalidMoveError
@@ -39,7 +52,7 @@ class OtheloBoardClass(dict):
         # direction, keeping count of number flipped
         flip_count = 0
         for vec in [(0,1),(1,0),(0,-1),(-1,0)]:
-            for m in range(1, self._size):
+            for m in range(1, self.size):
                 if not self.get(tuple_offset((x, y), vec, m)):
                     break
                 if self.get(tuple_offset((x, y), vec, m)) == self.current_turn:
@@ -48,19 +61,37 @@ class OtheloBoardClass(dict):
                     # opposin gpieces counld be zero!)
                     for n in range(m-1):
                         flip_count += 1
-                        self[tuple_offset((x, y), vec, n+1)] = self.current_turn
+                        if test_only==False:
+                            self[tuple_offset((x, y), vec, n+1)] = self.current_turn
+                    break
                     
         if flip_count > 0:
-            self[(x,y)] = self.current_turn
-            self.current_turn = self.players[1 - self.players.index(self.current_turn)]
+            if test_only==False:
+                self[(x,y)] = self.current_turn
+                self.current_turn = self.players[1 - self.players.index(self.current_turn)]
+            return flip_count
         else:
             raise InvalidMoveError
-    
+        
+    def score(self):
+        return {self.players[i]: len([k for k in self if self[k]==self.players[i]]) for i in [0,1]}
+
+def auto_play_move(game):
+    play_options = game.get_boundary();
+    for p in play_options:
+        try:
+            game.play_move(*p)
+        except InvalidMoveError:
+            pass
+        else:
+            return
+    raise NoAvailablePlayError
 
 if __name__ == '__main__':
     board = OtheloBoardClass(6)
-    print(board)
-    board.play_move(2, 1)
-    print(board)
-    board.play_move(1, 3)
-    print(board)
+    while True:
+        print(board)
+        auto_play_move(board)
+        
+        
+        
