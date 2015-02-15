@@ -88,10 +88,15 @@ def auto_play_move(game):
     raise NoAvailablePlayError
 
 if __name__ == '__main__':
-    board = OtheloBoardClass(6)
+    game = OtheloBoardClass(6)
+    print('You are playing as X')
     while True:
-        print(board)
-        auto_play_move(board)
+        print(game)
+        print(game.score())
+        game.play_move(*eval(input('Move: ')))
+        print(game)
+        auto_play_move(game)
+        print(game.score())
         
         
         
