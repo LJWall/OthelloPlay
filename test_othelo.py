@@ -15,7 +15,7 @@ class TestOtheloBoardClass(unittest.TestCase):
     def test_whose_go(self):
         game = OtheloBoardClass(6)
         self.assertEqual(game.current_turn, 'X')
-        game.play_move(0, 2)
+        game.play_move(2, 1)
         self.assertEqual(game.current_turn, 'O')
         
     def test_play_off_board_raisesKeyError(self):
