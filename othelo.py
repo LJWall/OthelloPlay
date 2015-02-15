@@ -12,7 +12,7 @@ class NoAvailablePlayError(Exception):
     pass
 
 
-class OtheloBoardClass(dict):
+class OthelloBoardClass(dict):
     def __init__(self, size):
         self.players = ('X', 'O')
         self.size = size
@@ -88,7 +88,7 @@ def auto_play_move(game):
     raise NoAvailablePlayError
 
 if __name__ == '__main__':
-    game = OtheloBoardClass(6)
+    game = OthelloBoardClass(6)
     print('You are playing as X')
     while True:
         print(game)
