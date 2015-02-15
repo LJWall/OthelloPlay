@@ -1,5 +1,6 @@
-from othelo import OtheloBoardClass
-import unittest # import TestCase, main
+from othelo import OtheloBoardClass, InvalidMoveError
+import unittest
+        
 
 class TestOtheloBoardClass(unittest.TestCase):
     def test_board_creation(self):
@@ -16,6 +17,17 @@ class TestOtheloBoardClass(unittest.TestCase):
         game.play_move(0, 2)
         self.assertEqual(game.current_turn, 'O')
         
+    def test_play_off_board_raisesKeyError(self):
+        game = OtheloBoardClass(6)
+        with self.assertRaises(KeyError):
+            game.play_move(0, -1)
+        with self.assertRaises(KeyError):
+            game.play_move(6, 1)
+            
+    def test_play_over_exiting_pieces_raises_error(self):
+        game = OtheloBoardClass(6)
+        with self.assertRaises(InvalidMoveError):
+            game.play_move(2,2)
         
 if __name__ == '__main__':
     unittest.main()
