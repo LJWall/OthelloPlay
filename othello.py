@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 
 def tuple_offset(t1, t2, k=1):
     """Offset t1 by k*t2."""
@@ -78,28 +80,39 @@ class OthelloBoardClass(dict):
 
 def auto_play_move(game):
     play_options = game.get_boundary();
+    play_results = dict()
     for p in play_options:
+        g1 = deepcopy(game)
         try:
-            game.play_move(*p)
+            g1.play_move(*p)
         except InvalidMoveError:
             pass
         else:
-            return
-    raise NoAvailablePlayError
+            play_results[p] = g1
+    if len(play_results):
+        best_play = max(play_results, key=(lambda x: play_results[x].score()[game.current_turn]))
+        game.play_move(*best_play)
+    else:
+        raise NoAvailablePlayError
 
 if __name__ == '__main__':
-    #game = OthelloBoardClass(6)
-    #print('You are playing as X')
-    #while True:
-    #    print(game)
-    #    print(game.score())
-    #    game.play_move(*eval(input('Move: ')))
-    #    print(game)
-    #    auto_play_move(game)
-    #    print(game.score())
     game = OthelloBoardClass(6)
-    game.play_move(2, 1)
+    print('You are playing as X')
     print(game)
+    print(game.score())    
+    while True:
+        try:
+            game.play_move(*eval(input('Move: ')))
+        except InvalidMoveError:
+            print('Invalid move. Try again.')
+        else:
+            print(game)
+            print(game.score())
+            auto_play_move(game)
+            print(game)
+            print(game.score())
+            
+        
         
         
         
