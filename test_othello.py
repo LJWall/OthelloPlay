@@ -46,7 +46,7 @@ class TestOthelloBoardClass(unittest.TestCase):
         game.play_move(2, 1)
         self.assertEqual(game.get_boundary(), {(1, 0), (1, 1),(1, 2),(1, 3), (1, 4),
                                             (2, 0),(2, 4),
-                                            (3, 1),(3, 4),
+                                            (3, 0), (3, 1),(3, 4),
                                             (4, 1),(4, 2),(4, 3),(4, 4),})
         game.clear()
         game[(5,5)]='X'
@@ -56,14 +56,14 @@ class TestOthelloBoardClass(unittest.TestCase):
         game = OthelloBoardClass(6)
         game.clear()
         game[(0, 0)]='X'
-        game[(1, 1)]='0'
-        game[(2, 2)]='0'
-        game.play_move(3, 3)
-        self.assertEqual(game[(0, 0)], 'X')
+        game[(0, 1)]='X'
+        game[(0, 2)]='X'
+        game[(1, 0)]='O'
+        game[(1, 1)]='O'
+        game.play_move(2, 0)
+        self.assertEqual(game[(1, 0)], 'X')
         self.assertEqual(game[(1, 1)], 'X')
-        self.assertEqual(game[(2, 2)], 'X')
-        self.assertEqual(game[(3, 3)], 'X')
-        self.assertEqual(len(game), 4)
+        
         
     
     

@@ -36,7 +36,7 @@ class OthelloBoardClass(dict):
     def get_boundary(self):
         ret = set()
         for x in self:
-            for vec in [(0,1),(1,0),(0,-1),(-1,0)]:
+            for vec in [(0,1),(1,0),(0,-1),(-1,0),(-1, -1),(1, 1),(-1, 1),(1, -1)]:
                 y = tuple_offset(x, vec)
                 if y not in self and y[0] >=0 and y[0] < self.size and y[1] >=0 and y[1] < self.size:
                     ret.add(y)
@@ -51,7 +51,7 @@ class OthelloBoardClass(dict):
         # for each direction vector, check if we have any pieces to flip in that
         # direction, keeping count of number flipped
         flip_count = 0
-        for vec in [(0,1),(1,0),(0,-1),(-1,0)]:
+        for vec in [(0,1),(1,0),(0,-1),(-1,0),(-1, -1),(1, 1),(-1, 1),(1, -1)]:
             for m in range(1, self.size):
                 if not self.get(tuple_offset((x, y), vec, m)):
                     break
@@ -88,15 +88,18 @@ def auto_play_move(game):
     raise NoAvailablePlayError
 
 if __name__ == '__main__':
+    #game = OthelloBoardClass(6)
+    #print('You are playing as X')
+    #while True:
+    #    print(game)
+    #    print(game.score())
+    #    game.play_move(*eval(input('Move: ')))
+    #    print(game)
+    #    auto_play_move(game)
+    #    print(game.score())
     game = OthelloBoardClass(6)
-    print('You are playing as X')
-    while True:
-        print(game)
-        print(game.score())
-        game.play_move(*eval(input('Move: ')))
-        print(game)
-        auto_play_move(game)
-        print(game.score())
+    game.play_move(2, 1)
+    print(game)
         
         
         
