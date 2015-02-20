@@ -2,13 +2,24 @@
 
 from flask import Flask, jsonify, abort, make_response, request, url_for, g
 import mysql.connector
-
+import pickle
+import othello
 app = Flask(__name__)
 
 app.config['DATABASE_USER'] = 'othello'
 app.config['DATABASE_PASSWORD'] = 'othello'
 app.config['DATABASE_NAME'] = 'Othello'
 app.config['DATABASE_HOST'] = '127.0.0.1'
+
+
+def make_game_jsonable(game):
+    game_dict = dict()
+    game_dict['X'] = [key for key in game if game[key]=='X']
+    game_dict['O'] = [key for key in game if game[key]=='O']
+    game_dict['current_turn'] = game.current_turn
+    game_dict['plays'] = list(othello.get_plays(game).keys())
+    game_dict['size'] = game.size
+    return game_dict
 
 @app.before_request
 def connect_db():
@@ -32,12 +43,22 @@ def not_found(error):
 def not_found(error):
     return make_response(jsonify({'error': 'Bad request'}), 400)
 
-@app.route('/', methods = ['GET'])
-def root_URI():
+@app.route('/game/<game_id>', methods = ['PUT'])
+def play_move(game_id):
+    pass
+
+@app.route('/game/<game_id>', methods = ['GET'])
+def get_game(game_id):
     cur = g.db_conn.cursor()
-    cur.execute('select `key`, `value` from othello_data;')
+    cur.execute('select `value` from othello_data where `key`=%s', (game_id, ))
     results = cur.fetchall()
-    return jsonify({row[0]: str(row[1]) for row in results})
+    if len(results):
+        game = pickle.loads(results[0][0])
+        game_dict = make_game_jsonable(game)
+        game_dict['play_uri'] = url_for('play_move', game_id=game_id)
+        return jsonify(game_dict)
+    else:
+        abort(404)
     
     
 if __name__ == "__main__":
