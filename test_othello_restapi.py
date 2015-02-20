@@ -55,6 +55,7 @@ class OthelloRestAPITestCase(unittest.TestCase):
         self.assertEqual(game_data['size'], 6)
         self.assertEqual(game_data['play_uri'], '/game/test')
         self.assertEqual(response.headers['Content-Type'], 'application/json')
+        self.assertEqual(game_data['game_complete'], False)
         
     def test_get_game_bad_id_gives_404(self):
         response = self.app.get('/game/NoSuchGame')

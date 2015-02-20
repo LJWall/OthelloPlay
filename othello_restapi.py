@@ -22,6 +22,7 @@ def make_game_jsonable(game):
     game_dict['current_turn'] = game.current_turn
     game_dict['plays'] = list(game.get_plays().keys())
     game_dict['size'] = game.size
+    game_dict['game_complete'] = game.game_complete
     return game_dict
 
 @app.before_request
