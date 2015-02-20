@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
-from flask import Flask, jsonify, abort, make_response, request, url_for, g
+from flask import Flask, jsonify, make_response, request, url_for, g
 from flask.json import loads as json_loads
+from werkzeug.exceptions import NotFound, BadRequest
 import mysql.connector
 import pickle
 import othello
@@ -24,11 +25,14 @@ def make_game_jsonable(game):
 
 @app.before_request
 def connect_db():
+    if request.method in ('POST', 'PUT') and request.headers['Content-Type'] != 'application/json':
+        raise BadRequest('Invlalid content type')
     if not getattr(g, 'db_conn', None):
         g.db_conn = mysql.connector.connect(user=app.config['DATABASE_USER'],
                                             password=app.config['DATABASE_PASSWORD'],
                                             database=app.config['DATABASE_NAME'],
                                             host=app.config['DATABASE_HOST'])
+    
     
 @app.after_request
 def disconnect_db(response):
@@ -38,11 +42,11 @@ def disconnect_db(response):
 
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
+    return make_response(jsonify({'error': error.get_description()}), 404)
 
 @app.errorhandler(400)
 def not_found(error):
-    return make_response(jsonify({'error': 'Bad request'}), 400)
+    return make_response(jsonify({'error': error.get_description()}), 400)
 
 @app.route('/game/<game_id>', methods = ['PUT'])
 def play_move(game_id):
@@ -50,17 +54,17 @@ def play_move(game_id):
         data = json_loads(request.data)
         play = (int(data['play'][0]), int(data['play'][1]))
     except BaseException:
-        abort(400)
+        raise BadRequest('Unable to interpret request')
     cur = g.db_conn.cursor()
     cur.execute('select `value` from othello_data where `key`=%s', (game_id, ))
     results = cur.fetchall()
     if not len(results):
-        abort(404)
+        raise NotFound('Game not found.')
     game = pickle.loads(results[0][0])
     try:
         game.play_move(*play)
     except othello.InvalidMoveError:
-        abort(400)
+        raise BadRequest('Invlalid move')
     cur.execute('update othello_data set `last_hit`=NOW(6), `value`=%s where `key`=%s', (pickle.dumps(game), game_id))
     
     game_dict = make_game_jsonable(game)
@@ -80,7 +84,7 @@ def get_game(game_id):
         game_dict['play_uri'] = url_for('play_move', game_id=game_id)
         return jsonify(game_dict)
     else:
-        abort(404)
+        raise NotFound('Game not found.')
     
     
 if __name__ == "__main__":
