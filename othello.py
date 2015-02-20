@@ -77,26 +77,26 @@ class OthelloBoardClass(dict):
     def score(self):
         return {self.players[i]: len([k for k in self if self[k]==self.players[i]]) for i in [0,1]}
 
-def get_plays(game):
-    play_options = game.get_boundary();
-    play_results = dict()
-    for p in play_options:
-        g1 = deepcopy(game)
-        try:
-            g1.play_move(*p)
-        except InvalidMoveError:
-            pass
+    def get_plays(self):
+        play_options = self.get_boundary();
+        play_results = dict()
+        for p in play_options:
+            g1 = deepcopy(self)
+            try:
+                g1.play_move(*p)
+            except InvalidMoveError:
+                pass
+            else:
+                play_results[p] = g1
+        return play_results
+    
+    def auto_play_move(self):
+        play_results = self.get_plays()
+        if len(play_results):
+            best_play = max(play_results, key=(lambda x: play_results[x].score()[self.current_turn]))
+            self.play_move(*best_play)
         else:
-            play_results[p] = g1
-    return play_results
-
-def auto_play_move(game):
-    play_results = get_plays(game)
-    if len(play_results):
-        best_play = max(play_results, key=(lambda x: play_results[x].score()[game.current_turn]))
-        game.play_move(*best_play)
-    else:
-        raise NoAvailablePlayError
+            raise NoAvailablePlayError
 
 if __name__ == '__main__':
     game = OthelloBoardClass(6)

@@ -20,7 +20,7 @@ def make_game_jsonable(game):
     game_dict['X'] = [key for key in game if game[key]=='X']
     game_dict['O'] = [key for key in game if game[key]=='O']
     game_dict['current_turn'] = game.current_turn
-    game_dict['plays'] = list(othello.get_plays(game).keys())
+    game_dict['plays'] = list(game.get_plays().keys())
     game_dict['size'] = game.size
     return game_dict
 
@@ -89,7 +89,7 @@ def play_move(game_id):
         raise BadRequest('Unable to interpret request')
     if play == 'auto':
         try:
-            othello.auto_play_move(game)
+            game.auto_play_move()
         except othello.NoAvailablePlayError:
             raise BadRequest('No available plays')
     else:

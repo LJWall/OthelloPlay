@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-from othello import OthelloBoardClass, InvalidMoveError, auto_play_move, get_plays
+from othello import OthelloBoardClass, InvalidMoveError
 from copy import deepcopy
 import unittest
         
@@ -19,7 +19,7 @@ class TestOthelloBoardClass(unittest.TestCase):
         game.play_move(2, 1)
         self.assertEqual(game.current_turn, 'O')
         
-    def test_play_off_board_raises_error(self):
+    def test_play_off_board_raises_errorget(self):
         game = OthelloBoardClass(6)
         with self.assertRaises(InvalidMoveError):
             game.play_move(0, -1)
@@ -95,11 +95,9 @@ class TestOthelloBoardClass(unittest.TestCase):
         self.assertEqual(game.score(), {'X': 4, 'O': 1})
         
         
-            
-class TestAutoPlay(unittest.TestCase):
     def test_get_plays(self):
         game = OthelloBoardClass(6)
-        plays = get_plays(game)
+        plays = game.get_plays()
         self.assertEqual(set(plays.keys()), {(1,2), (2,1), (3, 4), (4, 3)})
         for p in plays:
             game2 = deepcopy(game)
@@ -109,10 +107,10 @@ class TestAutoPlay(unittest.TestCase):
     
     def test_auto_play(self):
         game = OthelloBoardClass(6)
-        auto_play_move(game)
+        game.auto_play_move()
         self.assertEqual(game.current_turn, 'O')
         self.assertEqual(len(game), 5)
-        auto_play_move(game)
+        game.auto_play_move()
         self.assertEqual(game.current_turn, 'X')
         self.assertEqual(len(game), 6)
         
