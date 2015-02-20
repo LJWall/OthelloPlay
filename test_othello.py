@@ -114,5 +114,21 @@ class TestOthelloBoardClass(unittest.TestCase):
         self.assertEqual(game.current_turn, 'X')
         self.assertEqual(len(game), 6)
         
+    def test_turn_is_forfeit_if_no_available_plays(self):
+        game = OthelloBoardClass(6)
+        game.clear()
+        game.update({(0, 2): 'O', (0, 3): 'X', (0, 4): 'O'})
+        self.assertEqual(game.current_turn, 'X')
+        game.play_move(0, 5)
+        self.assertEqual(game.current_turn, 'X')
+    
+    def test_game_end_is_identified(self):
+        game = OthelloBoardClass(6)
+        game.clear()
+        game.update({(0, 2): 'X', (0, 3): 'X', (0, 4): 'O'})
+        self.assertEqual(game.game_complete, False)
+        game.play_move(0, 5)
+        self.assertEqual(game.game_complete, True)
+        
 if __name__ == '__main__':
     unittest.main()

@@ -13,6 +13,8 @@ class InvalidMoveError(Exception):
 class NoAvailablePlayError(Exception):
     pass
 
+class GameCompleteError(Exception):
+    pass
 
 class OthelloBoardClass(dict):
     def __init__(self, size):
@@ -24,7 +26,7 @@ class OthelloBoardClass(dict):
         self[(x-1, x)] = self.players[0]
         self[(x, x-1)] = self.players[0]
         self.current_turn = self.players[0]
-        
+        self.game_complete = False
     
     def __str__(self):
         ret = ''
@@ -45,6 +47,8 @@ class OthelloBoardClass(dict):
         return ret
     
     def play_move(self, x, y, test_only=False):
+        if self.game_complete:
+            raise GameCompleteError
         if x<0 or x>=self.size or y<0 or y>=self.size:
             raise InvalidMoveError
         if self.get((x,y), 0):
@@ -59,17 +63,28 @@ class OthelloBoardClass(dict):
                 if self.get(tuple_offset((x, y), vec, m)) == self.current_turn:
                     # have found a piece matching current players in the line,
                     # with only opposing peices in between (note - number of
-                    # opposin gpieces counld be zero!)
+                    # opposing pieces could be zero!)
                     for n in range(m-1):
                         flip_count += 1
-                        if test_only==False:
+                        if not test_only:
                             self[tuple_offset((x, y), vec, n+1)] = self.current_turn
                     break
                     
         if flip_count > 0:
-            if test_only==False:
+            if not test_only:
+                # make the move
                 self[(x,y)] = self.current_turn
                 self.current_turn = self.players[1 - self.players.index(self.current_turn)]
+                # asses the state of the board. (i.e. can the new player make a valid move? if so they forfeit their turn)
+                plays = self.get_plays(simple=True) # note that simple=True stops us getting it a recursion loop!
+                if len(plays)==0:
+                    # new player has no options, flip the turn back
+                    self.current_turn = self.players[1 - self.players.index(self.current_turn)]
+                    # test again
+                    plays = self.get_plays(simple=True)
+                    if len(plays)==0:
+                        # in this case, the game is over
+                        self.game_complete = True
             return flip_count
         else:
             raise InvalidMoveError
@@ -77,20 +92,22 @@ class OthelloBoardClass(dict):
     def score(self):
         return {self.players[i]: len([k for k in self if self[k]==self.players[i]]) for i in [0,1]}
 
-    def get_plays(self):
+    def get_plays(self, simple=False):
         play_options = self.get_boundary();
         play_results = dict()
         for p in play_options:
             g1 = deepcopy(self)
             try:
-                g1.play_move(*p)
+                flip_count = g1.play_move(*p, test_only=simple)
             except InvalidMoveError:
                 pass
             else:
-                play_results[p] = g1
+                play_results[p] = (flip_count if simple else g1)
         return play_results
     
     def auto_play_move(self):
+        if self.game_complete:
+            raise GameCompleteError
         play_results = self.get_plays()
         if len(play_results):
             best_play = max(play_results, key=(lambda x: play_results[x].score()[self.current_turn]))
