@@ -18,7 +18,7 @@ class OthelloBoardClass(dict):
     def __init__(self, size):
         self.players = ('X', 'O')
         self.size = size
-        x = size / 2
+        x = int(size / 2)
         self[(x-1, x-1)] = self.players[1]
         self[(x, x)] = self.players[1]
         self[(x-1, x)] = self.players[0]
