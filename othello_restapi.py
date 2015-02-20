@@ -6,6 +6,7 @@ from werkzeug.exceptions import NotFound, BadRequest
 import mysql.connector
 import pickle
 import othello
+from random import randint
 app = Flask(__name__)
 
 app.config['DATABASE_USER'] = 'othello'
@@ -31,7 +32,8 @@ def connect_db():
         g.db_conn = mysql.connector.connect(user=app.config['DATABASE_USER'],
                                             password=app.config['DATABASE_PASSWORD'],
                                             database=app.config['DATABASE_NAME'],
-                                            host=app.config['DATABASE_HOST'])
+                                            host=app.config['DATABASE_HOST'],
+                                            autocommit=True)
     
     
 @app.after_request
@@ -47,6 +49,29 @@ def not_found(error):
 @app.errorhandler(400)
 def not_found(error):
     return make_response(jsonify({'error': error.get_description()}), 400)
+
+@app.route('/game', methods = ['POST'])
+def create_game():
+    try:
+        game_size = int(json_loads(request.data)['game_size'])
+    except BaseException:
+        raise BadRequest('game_size not specified')
+    if game_size<4:
+        raise BadRequest('game_size should be at least four')
+    game = othello.OthelloBoardClass(game_size)
+    cur = g.db_conn.cursor()
+    cur.execute('select `key` from othello_data')
+    keys = cur.fetchall()
+    game_key = randint(10000, 99999)
+    while (game_key, ) in keys:
+        game_key = randint(10000, 99999)
+    cur.execute('insert into othello_data (`key`, `value`) values (%s, %s)', (str(game_key), pickle.dumps(game)))
+    game_dict = make_game_jsonable(game)
+    game_dict['play_uri'] = url_for('play_move', game_id=game_key)
+    response = jsonify(game_dict)
+    response.headers['Location'] = '/game/' + str(game_key)
+    response.status_code = 201
+    return response
 
 @app.route('/game/<game_id>', methods = ['PUT'])
 def play_move(game_id):
