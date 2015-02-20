@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 from flask import Flask, jsonify, abort, make_response, request, url_for, g
+from flask.json import loads as json_loads
 import mysql.connector
 import pickle
 import othello
@@ -45,11 +46,32 @@ def not_found(error):
 
 @app.route('/game/<game_id>', methods = ['PUT'])
 def play_move(game_id):
-    pass
-
+    try:
+        data = json_loads(request.data)
+        play = (int(data['play'][0]), int(data['play'][1]))
+    except BaseException:
+        abort(400)
+    cur = g.db_conn.cursor()
+    cur.execute('select `value` from othello_data where `key`=%s', (game_id, ))
+    results = cur.fetchall()
+    if not len(results):
+        abort(404)
+    game = pickle.loads(results[0][0])
+    try:
+        game.play_move(*play)
+    except othello.InvalidMoveError:
+        abort(400)
+    cur.execute('update othello_data set `last_hit`=NOW(6), `value`=%s where `key`=%s', (pickle.dumps(game), game_id))
+    
+    game_dict = make_game_jsonable(game)
+    game_dict['play_uri'] = url_for('play_move', game_id=game_id)
+    return jsonify(game_dict)
+        
+    
 @app.route('/game/<game_id>', methods = ['GET'])
 def get_game(game_id):
     cur = g.db_conn.cursor()
+    cur.execute('update othello_data set `last_hit`=NOW(6) where `key`=%s', (game_id, ))
     cur.execute('select `value` from othello_data where `key`=%s', (game_id, ))
     results = cur.fetchall()
     if len(results):

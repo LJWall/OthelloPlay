@@ -19,11 +19,11 @@ class TestOthelloBoardClass(unittest.TestCase):
         game.play_move(2, 1)
         self.assertEqual(game.current_turn, 'O')
         
-    def test_play_off_board_raisesKeyError(self):
+    def test_play_off_board_raises_error(self):
         game = OthelloBoardClass(6)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(InvalidMoveError):
             game.play_move(0, -1)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(InvalidMoveError):
             game.play_move(6, 1)
             
     def test_play_over_exiting_pieces_raises_error(self):

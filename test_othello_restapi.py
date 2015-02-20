@@ -39,11 +39,13 @@ class OthelloRestAPITestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.mimetype, 'application/json')
     
-        
-    def test_get_game(self):
-        game = othello.OthelloBoardClass(6)
+    def add_blank_game(self, size):
+        game = othello.OthelloBoardClass(size)
         cur = self.db_conn.cursor()
         cur.execute('INSERT INTO othello_data (`key`, `value`) VALUES (%s, %s)', ('test', pickle.dumps(game)))
+        
+    def test_get_game(self):
+        self.add_blank_game(6)
         response = self.app.get('/game/test')
         game_data = json_loads(response.data)
         self.assertEqual(sorted(game_data['X']), [[2, 3],[3, 2]])
@@ -53,12 +55,16 @@ class OthelloRestAPITestCase(unittest.TestCase):
         self.assertEqual(game_data['size'], 6)
         self.assertEqual(game_data['play_uri'], '/game/test')
         
+    def test_get_game_bad_id_gives_404(self):
+        response = self.app.get('/game/NoSuchGame')
+        game_data = json_loads(response.data)
+        self.assertEqual(response.status_code, 404)
+        
+        
     def test_game_put_play_move(self):
-        game = othello.OthelloBoardClass(6)
-        cur = self.db_conn.cursor()
-        cur.execute('INSERT INTO othello_data (`key`, `value`) VALUES (%s, %s)', ('test', pickle.dumps(game)))
+        self.add_blank_game(6)
         response = self.app.put('/game/test', data=json_dumps({'play': [1, 2]}))
-        self.assertEqual(reponse.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         game_data = json_loads(response.data)
         self.assertEqual(sorted(game_data['X']), [[1, 2], [2, 2], [2, 3],[3, 2]])
         self.assertEqual(sorted(game_data['O']), [[3, 3]])
@@ -66,6 +72,14 @@ class OthelloRestAPITestCase(unittest.TestCase):
         self.assertEqual(game_data['current_turn'], 'O')
         self.assertEqual(game_data['size'], 6)
         self.assertEqual(game_data['play_uri'], '/game/test')
+        
+    def test_game_play_invalid_move_gives_400(self):
+        self.add_blank_game(6)
+        response = self.app.put('/game/test', data=json_dumps({'play': [2, 2]}))
+        self.assertEqual(response.status_code, 400)
+        response = self.app.put('/game/test', data=json_dumps({'play': [2, 6]}))
+        self.assertEqual(response.status_code, 400)
+        
         
         
     

@@ -46,7 +46,7 @@ class OthelloBoardClass(dict):
     
     def play_move(self, x, y, test_only=False):
         if x<0 or x>=self.size or y<0 or y>=self.size:
-            raise KeyError
+            raise InvalidMoveError
         if self.get((x,y), 0):
             raise InvalidMoveError
         # for each direction vector, check if we have any pieces to flip in that
