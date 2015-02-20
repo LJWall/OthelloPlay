@@ -75,23 +75,34 @@ def create_game():
 
 @app.route('/game/<game_id>', methods = ['PUT'])
 def play_move(game_id):
-    try:
-        data = json_loads(request.data)
-        play = (int(data['play'][0]), int(data['play'][1]))
-    except BaseException:
-        raise BadRequest('Unable to interpret request')
+    # get the game from the db store
     cur = g.db_conn.cursor()
     cur.execute('select `value` from othello_data where `key`=%s', (game_id, ))
     results = cur.fetchall()
     if not len(results):
         raise NotFound('Game not found.')
     game = pickle.loads(results[0][0])
+    # Attempt to interpret and carry out the request
     try:
-        game.play_move(*play)
-    except othello.InvalidMoveError:
-        raise BadRequest('Invlalid move')
-    cur.execute('update othello_data set `last_hit`=NOW(6), `value`=%s where `key`=%s', (pickle.dumps(game), game_id))
+        play = json_loads(request.data)['play']
+    except BaseException:
+        raise BadRequest('Unable to interpret request')
+    if play == 'auto':
+        try:
+            othello.auto_play_move(game)
+        except othello.NoAvailablePlayError:
+            raise BadRequest('No available plays')
+    else:
+        try:
+            play = (int(play[0]), int(play[1]))
+        except BaseException:
+            raise BadRequest('Unable to interpret request')    
+        try:
+            game.play_move(*play)
+        except othello.InvalidMoveError:
+            raise BadRequest('Invlalid move')
     
+    cur.execute('update othello_data set `last_hit`=NOW(6), `value`=%s where `key`=%s', (pickle.dumps(game), game_id))
     game_dict = make_game_jsonable(game)
     game_dict['play_uri'] = url_for('play_move', game_id=game_id)
     return jsonify(game_dict)

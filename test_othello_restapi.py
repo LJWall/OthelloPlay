@@ -72,7 +72,17 @@ class OthelloRestAPITestCase(unittest.TestCase):
         self.assertEqual(game_data['current_turn'], 'O')
         self.assertEqual(game_data['size'], 6)
         self.assertEqual(game_data['play_uri'], '/game/test')
-            
+    
+    def test_game_put_autoplay_move(self):
+        self.add_blank_game(6)
+        response = self.app.put('/game/test', data=json_dumps({'play': 'auto'}), content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        game_data = json_loads(response.data)
+        # check a move has been made
+        self.assertEqual(len(game_data['X']), 4)
+        self.assertEqual(game_data['current_turn'], 'O')
+        
+        
         
     def test_game_play_invalid_move_gives_400(self):
         self.add_blank_game(6)
