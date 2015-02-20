@@ -44,7 +44,6 @@ class OthelloBoardClass(dict):
                     ret.add(y)
         return ret
     
-    
     def play_move(self, x, y, test_only=False):
         if x<0 or x>=self.size or y<0 or y>=self.size:
             raise KeyError
@@ -78,7 +77,7 @@ class OthelloBoardClass(dict):
     def score(self):
         return {self.players[i]: len([k for k in self if self[k]==self.players[i]]) for i in [0,1]}
 
-def auto_play_move(game):
+def get_plays(game):
     play_options = game.get_boundary();
     play_results = dict()
     for p in play_options:
@@ -89,6 +88,10 @@ def auto_play_move(game):
             pass
         else:
             play_results[p] = g1
+    return play_results
+
+def auto_play_move(game):
+    play_results = get_plays(game)
     if len(play_results):
         best_play = max(play_results, key=(lambda x: play_results[x].score()[game.current_turn]))
         game.play_move(*best_play)

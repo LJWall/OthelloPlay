@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
-from othello import OthelloBoardClass, InvalidMoveError, auto_play_move
+from othello import OthelloBoardClass, InvalidMoveError, auto_play_move, get_plays
+from copy import deepcopy
 import unittest
         
 
@@ -96,6 +97,16 @@ class TestOthelloBoardClass(unittest.TestCase):
         
             
 class TestAutoPlay(unittest.TestCase):
+    def test_get_plays(self):
+        game = OthelloBoardClass(6)
+        plays = get_plays(game)
+        self.assertEqual(set(plays.keys()), {(1,2), (2,1), (3, 4), (4, 3)})
+        for p in plays:
+            game2 = deepcopy(game)
+            game2.play_move(*p)
+            self.assertEqual(game2, plays[p])
+        
+    
     def test_auto_play(self):
         game = OthelloBoardClass(6)
         auto_play_move(game)
