@@ -93,12 +93,12 @@ class OthelloBoardModel(othello.OthelloBoardClass):
     def get_uri(self):
         if self.game_key is None or self.move_id is None:
             raise GameNotStoredError
-        return url_for('get_game', game_id=self.game_key, move_id=self.move_id, _external=True)
+        return url_for('get_game', game_id=self.game_key, move_id=self.move_id, _external=False)
     
     def post_uri(self):
         if self.game_key is None or self.move_id is None:
             raise GameNotStoredError
-        return url_for('play_move', game_id=self.game_key, move_id=self.move_id, _external=True)
+        return url_for('play_move', game_id=self.game_key, move_id=self.move_id, _external=False)
     
     def get_jsonable_object(self):
         game_dict = dict()
