@@ -161,8 +161,8 @@ class OthelloBoardModelTest(unittest.TestCase):
         game = othello_model.OthelloBoardModel(6)
         self.board_store.save_board(game)
         with othello_restapi.app.app_context():
-            self.assertEqual(game.get_uri(), url_for('get_game', game_id=game.game_key, move_id=game.move_id))
-            self.assertEqual(game.post_uri(), url_for('play_move', game_id=game.game_key, move_id=game.move_id))
+            self.assertEqual(game.get_uri(), url_for('get_game', game_id=game.game_key, move_id=game.move_id, _external=False))
+            self.assertEqual(game.post_uri(), url_for('play_move', game_id=game.game_key, move_id=game.move_id, _external=False))
         
     def test_get_board_uris_before_save_raise_error(self):
         game = othello_model.OthelloBoardModel(6)
