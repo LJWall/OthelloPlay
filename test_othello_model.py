@@ -85,12 +85,18 @@ class OthelloBoardModelTest(unittest.TestCase):
         self.assertIs(game.move_id, None)
         self.assertEqual(game.last_move_id, 0)
     
-    def test_playing_a_test_move__doest_change_move_id(self):
+    def test_playing_a_test_move_doesnt_change_move_id(self):
         game = othello_model.OthelloBoardModel(6)
         game.move_id = 0
         result = game.play_move(2, 1, True)
         self.assertEqual(game.move_id, 0)
         self.assertEqual(result, 1)
+    
+    def test_calling_plays_doesnt_change_move_id(self):
+        game = othello_model.OthelloBoardModel(6)
+        game.move_id = 0
+        result = game.get_plays()
+        self.assertEqual(game.move_id, 0)
         
     def test_playing_a_manual_move_doesnt_zap_move_id_on_error(self):
         game = othello_model.OthelloBoardModel(6)
@@ -117,7 +123,7 @@ class OthelloBoardModelTest(unittest.TestCase):
         self.assertEqual(game.move_id,game_reread.move_id)
         self.assertEqual(game.last_move_id,game_reread.last_move_id)
         
-    def test_get_baord_bad_ids(self):
+    def test_get_board_bad_IDs(self):
         with self.assertRaises(othello_model.GameNotFoundError):
             self.board_store.get_board('99999', 0)
             
@@ -151,7 +157,7 @@ class OthelloBoardModelTest(unittest.TestCase):
         self.assertEqual(game3.move_id, game.move_id+2)
         self.assertEqual(game3.last_move_id, game.move_id)
         
-    def test_get_board_uris(self):
+    def test_get_board_URIs(self):
         game = othello_model.OthelloBoardModel(6)
         self.board_store.save_board(game)
         with othello_restapi.app.app_context():
@@ -165,6 +171,14 @@ class OthelloBoardModelTest(unittest.TestCase):
                 game.get_uri()
             with self.assertRaises(othello_model.GameNotStoredError):
                 game.post_uri()
+                
+    def test_board_model_has_jsonable_function(self):
+        game = othello_model.OthelloBoardModel(6)
+        self.board_store.save_board(game)
+        with othello_restapi.app.app_context():
+            game_dict = game.get_jsonable_object()
+        self.assertIsInstance(game_dict, dict)
+        self.assertEqual(sorted(list(game_dict.keys())), sorted(['X', 'O', 'current_turn', 'plays', 'size', 'game_complete', 'URIs']))
         
 if __name__ == '__main__':
     unittest.main()

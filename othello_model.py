@@ -94,6 +94,17 @@ class OthelloBoardModel(othello.OthelloBoardClass):
         if self.game_key is None or self.move_id is None:
             raise GameNotStoredError
         return url_for('play_move', game_id=self.game_key, move_id=self.move_id)
+    
+    def get_jsonable_object(self):
+        game_dict = dict()
+        game_dict['X'] = [key for key in self if self[key]=='X']
+        game_dict['O'] = [key for key in self if self[key]=='O']
+        game_dict['current_turn'] = self.current_turn
+        game_dict['plays'] = list(self.get_plays().keys())
+        game_dict['size'] = self.size
+        game_dict['game_complete'] = self.game_complete
+        game_dict['URIs'] = {'get': self.get_uri(), 'play': self.post_uri()}
+        return game_dict
         
     
     
