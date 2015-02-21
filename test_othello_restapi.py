@@ -25,10 +25,10 @@ class OthelloRestAPITestCase(unittest.TestCase):
                                             autocommit=True)
     
     @classmethod
-    def teadDownClass(cls):
-        if getattr(cls, dn_conn, None):
-            self.db_conn.cmd_query('DELETE FROM othello_data;')    
-            cls.dn_conn.close()
+    def tearDownClass(cls):
+        if getattr(cls, 'db_conn', None):
+            cls.db_conn.cmd_query('DELETE FROM othello_data;')    
+            cls.db_conn.close()
     
     def setUp(self):
         self.db_conn.cmd_query('DELETE FROM othello_data;')
