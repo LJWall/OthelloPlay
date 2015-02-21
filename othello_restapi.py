@@ -27,7 +27,7 @@ def make_game_jsonable(game):
 
 @app.before_request
 def connect_db():
-    if request.method in ('POST', 'PUT') and request.headers['Content-Type'] != 'application/json':
+    if request.method in ('POST') and request.headers['Content-Type'] != 'application/json':
         raise BadRequest('Invlalid content type')
     if not getattr(g, 'db_conn', None):
         g.db_conn = mysql.connector.connect(user=app.config['DATABASE_USER'],
@@ -61,24 +61,24 @@ def create_game():
         raise BadRequest('game_size should be at least four')
     game = othello.OthelloBoardClass(game_size)
     cur = g.db_conn.cursor()
-    cur.execute('select `key` from othello_data')
+    cur.execute('select `game_key` from othello_data')
     keys = cur.fetchall()
     game_key = randint(10000, 99999)
     while (game_key, ) in keys:
         game_key = randint(10000, 99999)
-    cur.execute('insert into othello_data (`key`, `value`) values (%s, %s)', (str(game_key), pickle.dumps(game)))
+    cur.execute('insert into othello_data (`game_key`, move_id, `game`) values (%s, 0, %s)', (str(game_key), pickle.dumps(game)))
     game_dict = make_game_jsonable(game)
-    game_dict['play_uri'] = url_for('play_move', game_id=game_key)
+    game_dict['play_uri'] = url_for('play_move', game_id=game_key, move_id=0)
     response = jsonify(game_dict)
-    response.headers['Location'] = '/game/' + str(game_key)
+    response.headers['Location'] = url_for('get_game', game_id=game_key, move_id=0)
     response.status_code = 201
     return response
 
-@app.route('/game/<game_id>', methods = ['PUT'])
-def play_move(game_id):
+@app.route('/game/<game_id>/<int:move_id>', methods = ['POST'])
+def play_move(game_id, move_id):
     # get the game from the db store
     cur = g.db_conn.cursor()
-    cur.execute('select `value` from othello_data where `key`=%s', (game_id, ))
+    cur.execute('select game from othello_data where `game_key`=%s and move_id=%s', (game_id, move_id))
     results = cur.fetchall()
     if not len(results):
         raise NotFound('Game not found.')
@@ -102,23 +102,26 @@ def play_move(game_id):
             game.play_move(*play)
         except othello.InvalidMoveError:
             raise BadRequest('Invlalid move')
-    
-    cur.execute('update othello_data set `last_hit`=NOW(6), `value`=%s where `key`=%s', (pickle.dumps(game), game_id))
+    # DANGER will need to chnage move_id+1 to something beter!
+    cur.execute('insert into othello_data (game_key, move_id, game) values (%s, %s, %s)', (game_id,move_id+1,pickle.dumps(game)))
     game_dict = make_game_jsonable(game)
-    game_dict['play_uri'] = url_for('play_move', game_id=game_id)
-    return jsonify(game_dict)
+    game_dict['play_uri'] = url_for('play_move', game_id=game_id, move_id=move_id+1)
+    response = jsonify(game_dict)
+    response.headers['Location'] = url_for('get_game', game_id=game_id, move_id=move_id+1)
+    response.status_code = 201
+    return response
         
     
-@app.route('/game/<game_id>', methods = ['GET'])
-def get_game(game_id):
+@app.route('/game/<game_id>/<int:move_id>', methods = ['GET'])
+def get_game(game_id, move_id):
     cur = g.db_conn.cursor()
-    cur.execute('update othello_data set `last_hit`=NOW(6) where `key`=%s', (game_id, ))
-    cur.execute('select `value` from othello_data where `key`=%s', (game_id, ))
+    cur.execute('update othello_data set `last_hit`=NOW(6) where `game_key`=%s', (game_id, ))
+    cur.execute('select `game` from othello_data where `game_key`=%s and move_id=%s', (game_id, move_id))
     results = cur.fetchall()
     if len(results):
         game = pickle.loads(results[0][0])
         game_dict = make_game_jsonable(game)
-        game_dict['play_uri'] = url_for('play_move', game_id=game_id)
+        game_dict['play_uri'] = url_for('play_move', game_id=game_id, move_id=move_id)
         return jsonify(game_dict)
     else:
         raise NotFound('Game not found.')

@@ -42,18 +42,18 @@ class OthelloRestAPITestCase(unittest.TestCase):
     def add_blank_game(self, size):
         game = othello.OthelloBoardClass(size)
         cur = self.db_conn.cursor()
-        cur.execute('INSERT INTO othello_data (`key`, `value`) VALUES (%s, %s)', ('test', pickle.dumps(game)))
+        cur.execute('INSERT INTO othello_data (`game_key`, move_id, `game`) VALUES (%s, 0, %s)', ('test', pickle.dumps(game)))
         
     def test_get_game(self):
         self.add_blank_game(6)
-        response = self.app.get('/game/test')
+        response = self.app.get('/game/test/0')
         game_data = json_loads(response.data)
         self.assertEqual(sorted(game_data['X']), [[2, 3],[3, 2]])
         self.assertEqual(sorted(game_data['O']), [[2, 2],[3, 3]])
         self.assertEqual(sorted(game_data['plays']), [[1, 2], [2, 1], [3, 4], [4, 3]])
         self.assertEqual(game_data['current_turn'], 'X')
         self.assertEqual(game_data['size'], 6)
-        self.assertEqual(game_data['play_uri'], '/game/test')
+        self.assertEqual(game_data['play_uri'], '/game/test/0')
         self.assertEqual(response.headers['Content-Type'], 'application/json')
         self.assertEqual(game_data['game_complete'], False)
         
@@ -62,22 +62,24 @@ class OthelloRestAPITestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         
         
-    def test_game_put_play_move(self):
+    def test_game_post_play_move(self):
         self.add_blank_game(6)
-        response = self.app.put('/game/test', data=json_dumps({'play': [1, 2]}), content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        response = self.app.post('/game/test/0', data=json_dumps({'play': [1, 2]}), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.headers['Location'][-12:], '/game/test/1')
         game_data = json_loads(response.data)
         self.assertEqual(sorted(game_data['X']), [[1, 2], [2, 2], [2, 3],[3, 2]])
         self.assertEqual(sorted(game_data['O']), [[3, 3]])
         self.assertEqual(sorted(game_data['plays']), [[1, 1], [1, 3], [3, 1]])
         self.assertEqual(game_data['current_turn'], 'O')
         self.assertEqual(game_data['size'], 6)
-        self.assertEqual(game_data['play_uri'], '/game/test')
+        self.assertEqual(game_data['play_uri'], '/game/test/1')
     
-    def test_game_put_autoplay_move(self):
+    def test_game_post_autoplay_move(self):
         self.add_blank_game(6)
-        response = self.app.put('/game/test', data=json_dumps({'play': 'auto'}), content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        response = self.app.post('/game/test/0', data=json_dumps({'play': 'auto'}), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.headers['Location'][-12:], '/game/test/1')
         game_data = json_loads(response.data)
         # check a move has been made
         self.assertEqual(len(game_data['X']), 4)
@@ -87,14 +89,14 @@ class OthelloRestAPITestCase(unittest.TestCase):
         
     def test_game_play_invalid_move_gives_400(self):
         self.add_blank_game(6)
-        response = self.app.put('/game/test', data=json_dumps({'play': [2, 2]}), content_type='application/json')
+        response = self.app.post('/game/test/0', data=json_dumps({'play': [2, 2]}), content_type='application/json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual('<p>Invlalid move</p>', json_loads(response.data)['error'])
-        response = self.app.put('/game/test', data=json_dumps({'play': [2, 6]}), content_type='application/json')
+        response = self.app.post('/game/test/0', data=json_dumps({'play': [2, 6]}), content_type='application/json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual('<p>Invlalid move</p>', json_loads(response.data)['error'])
     
-    def test_post_game_returns_201_plus_header(self):
+    def test_post_game_returns_201(self):
         response = self.app.post('/game', data=json_dumps({'game_size': 8}), content_type='application/json')
         self.assertEqual(response.status_code, 201)
         
@@ -111,7 +113,7 @@ class OthelloRestAPITestCase(unittest.TestCase):
     def test_post_game_actualy_creates_game(self):
         response = self.app.post('/game', data=json_dumps({'game_size': 12}), content_type='application/json')
         cur = self.db_conn.cursor()
-        cur.execute('SELECT `value` from othello_data where `key`=%s', (response.headers['Location'].split('/')[-1],))
+        cur.execute('SELECT `game` from othello_data where `game_key`=%s', (response.headers['Location'].split('/')[-2],))
         result = cur.fetchall()
         game = pickle.loads(result[0][0])
         self.assertEqual(game, othello.OthelloBoardClass(12))
@@ -120,6 +122,20 @@ class OthelloRestAPITestCase(unittest.TestCase):
         response_post = self.app.post('/game', data=json_dumps({'game_size': 8}), content_type='application/json')
         response_get = self.app.get(response_post.headers['Location'])
         self.assertEqual(json_loads(response_post.data), json_loads(response_get.data))
+        
+    def test_play_move_doesnt_lose_previous_data(self):
+        response_post = self.app.post('/game', data=json_dumps({'game_size': 6}), content_type='application/json')
+        data0 = json_loads(response_post.data)
+        response_playmove = self.app.post(data0['play_uri'], data=json_dumps({'play': [1, 2]}), content_type='application/json')
+        data1 = json_loads(response_playmove.data)
+        self.assertNotEqual(data0, data1)
+        response_get0 = self.app.get(response_post.headers['Location'])
+        response_get1 = self.app.get(response_playmove.headers['Location'])
+        self.assertEqual(data0, json_loads(response_get0.data))
+        self.assertEqual(data1, json_loads(response_get1.data))
+        
+        
+        
         
     
 if __name__ == '__main__':
