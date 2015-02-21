@@ -128,7 +128,7 @@ if __name__ == '__main__':
         else:
             print(game)
             print(game.score())
-            auto_play_move(game)
+            game.auto_play_move()
             print(game)
             print(game.score())
             
