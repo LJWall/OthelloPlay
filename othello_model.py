@@ -36,6 +36,10 @@ class BoardStore():
                 self.cur.execute('UNLOCK TABLES')
                 self.cur.close()
                 
+    def clear_all(self):
+        with self.Closing(self.db_conn.cursor()) as cur:
+            cur.execute('DELETE FROM othello_data')
+    
     
     def get_board(self, game_key, move_id):
         with self.Closing(self.db_conn.cursor()) as cur:

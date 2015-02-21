@@ -185,6 +185,13 @@ class OthelloBoardModelTest(unittest.TestCase):
         self.assertEqual(game_dict['current_turn'], 'X')
         self.assertEqual(game_dict['size'], 6)
         
+    def test_clear_all(self):
+        game = othello_model.OthelloBoardModel(6)
+        self.board_store.save_board(game)
+        self.board_store.clear_all()
+        with self.assertRaises(othello_model.GameNotFoundError):
+            self.board_store.get_board(game.game_key, game.move_id)
+        
         
 if __name__ == '__main__':
     unittest.main()
