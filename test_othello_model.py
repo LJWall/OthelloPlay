@@ -177,8 +177,14 @@ class OthelloBoardModelTest(unittest.TestCase):
         self.board_store.save_board(game)
         with othello_restapi.app.app_context():
             game_dict = game.get_jsonable_object()
-        self.assertIsInstance(game_dict, dict)
-        self.assertEqual(sorted(list(game_dict.keys())), sorted(['X', 'O', 'current_turn', 'plays', 'size', 'game_complete', 'URIs']))
+            self.assertEqual(game_dict['URIs'], {'get': game.get_uri(), 'play': game.post_uri()})
+        self.assertEqual(game_dict['game_complete'], False)
+        self.assertEqual(sorted(game_dict['X']), [[2, 3],[3, 2]])
+        self.assertEqual(sorted(game_dict['O']), [[2, 2],[3, 3]])
+        self.assertEqual(sorted(game_dict['plays']), [[1, 2], [2, 1], [3, 4], [4, 3]])
+        self.assertEqual(game_dict['current_turn'], 'X')
+        self.assertEqual(game_dict['size'], 6)
+        
         
 if __name__ == '__main__':
     unittest.main()
