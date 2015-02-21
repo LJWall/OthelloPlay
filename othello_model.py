@@ -1,6 +1,7 @@
 import pickle
 import mysql.connector
 import othello
+from othello import GameCompleteError, InvalidMoveError, NoAvailablePlayError
 from othello_restapi import app
 from random import randint
 from flask import url_for
@@ -24,7 +25,7 @@ class BoardStore():
     
     def __del__(self):
         if getattr(self, 'db_conn', None):
-            cls.db_conn.close()
+            self.db_conn.close()
     
     class Closing():
         def __init__(self, cursor):
@@ -92,12 +93,12 @@ class OthelloBoardModel(othello.OthelloBoardClass):
     def get_uri(self):
         if self.game_key is None or self.move_id is None:
             raise GameNotStoredError
-        return url_for('get_game', game_id=self.game_key, move_id=self.move_id)
+        return url_for('get_game', game_id=self.game_key, move_id=self.move_id, _external=True)
     
     def post_uri(self):
         if self.game_key is None or self.move_id is None:
             raise GameNotStoredError
-        return url_for('play_move', game_id=self.game_key, move_id=self.move_id)
+        return url_for('play_move', game_id=self.game_key, move_id=self.move_id, _external=True)
     
     def get_jsonable_object(self):
         game_dict = dict()
@@ -107,7 +108,9 @@ class OthelloBoardModel(othello.OthelloBoardClass):
         game_dict['plays'] = [list(play) for play in self.get_plays().keys()]
         game_dict['size'] = self.size
         game_dict['game_complete'] = self.game_complete
-        game_dict['URIs'] = {'get': self.get_uri(), 'play': self.post_uri()}
+        game_dict['URIs'] = {'get': self.get_uri()}
+        if not self.game_complete:
+            game_dict['URIs']['play'] = self.post_uri()
         return game_dict
         
     

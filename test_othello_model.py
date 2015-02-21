@@ -13,7 +13,7 @@ othello_restapi.app.config.update(
     'DATABASE_NAME': 'othello_unittest',
     'DATABASE_HOST': '127.0.0.1',
     'TESTING': True,
-    'SERVER_NAME': 'TEST'})
+    'SERVER_NAME': 'localhost'})
 
 
 

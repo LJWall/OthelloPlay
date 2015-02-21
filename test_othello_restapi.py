@@ -89,11 +89,11 @@ class OthelloRestAPITestCase(unittest.TestCase):
         with othello_restapi.app.app_context():
             response = self.app.post(game.post_uri(), data=json_dumps({'play': [2, 2]}), content_type='application/json')
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(json_loads(response.data)['error'], '<p>Invlalid move</p>')
+        self.assertEqual(json_loads(response.data)['error'], '<p>Invalid move</p>')
         with othello_restapi.app.app_context():
             response = self.app.post(game.post_uri(), data=json_dumps({'play': [2, 6]}), content_type='application/json')
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(json_loads(response.data)['error'], '<p>Invlalid move</p>')
+        self.assertEqual(json_loads(response.data)['error'], '<p>Invalid move</p>')
     
     def test_post_game_returns_201(self):
         response = self.app.post('/game', data=json_dumps({'game_size': 8}), content_type='application/json')
