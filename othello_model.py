@@ -3,11 +3,15 @@ import mysql.connector
 import othello
 from othello_restapi import app
 from random import randint
+from flask import url_for
 
 class GameNotFoundError(BaseException):
     pass
 
 class GameAlreadyStoredError(BaseException):
+    pass
+
+class GameNotStoredError(BaseException):
     pass
 
 class BoardStore():
@@ -34,7 +38,6 @@ class BoardStore():
                 
     
     def get_board(self, game_key, move_id):
-        #cur = self.db_conn.cursor()
         with self.Closing(self.db_conn.cursor()) as cur:
             cur.execute('UPDATE othello_data SET `last_hit`=NOW(6) where `game_key`=%s and move_id=%s', (game_key, move_id))
             cur.execute('SELECT `game` FROM othello_data WHERE game_key=%s and move_id=%s', (game_key, move_id))
@@ -82,6 +85,15 @@ class OthelloBoardModel(othello.OthelloBoardClass):
             self.move_id = None
         return result
         
+    def get_uri(self):
+        if self.game_key is None or self.move_id is None:
+            raise GameNotStoredError
+        return url_for('get_game', game_id=self.game_key, move_id=self.move_id)
+    
+    def post_uri(self):
+        if self.game_key is None or self.move_id is None:
+            raise GameNotStoredError
+        return url_for('play_move', game_id=self.game_key, move_id=self.move_id)
         
     
     

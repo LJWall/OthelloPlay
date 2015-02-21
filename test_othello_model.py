@@ -5,13 +5,15 @@ import othello
 import unittest
 import mysql.connector
 import pickle
+from flask import url_for
 
 othello_restapi.app.config.update(
     {'DATABASE_USER': 'unittester',
     'DATABASE_PASSWORD': 'unittester',
     'DATABASE_NAME': 'othello_unittest',
     'DATABASE_HOST': '127.0.0.1',
-    'TESTING': True})
+    'TESTING': True,
+    'SERVER_NAME': 'TEST'})
 
 
 
@@ -147,8 +149,22 @@ class OthelloBoardModelTest(unittest.TestCase):
         self.board_store.save_board(game3)
         self.assertEqual(game3.game_key, game.game_key)
         self.assertEqual(game3.move_id, game.move_id+2)
-        self.assertEqual(game3.last_move_id, game.move_id)    
+        self.assertEqual(game3.last_move_id, game.move_id)
         
+    def test_get_board_uris(self):
+        game = othello_model.OthelloBoardModel(6)
+        self.board_store.save_board(game)
+        with othello_restapi.app.app_context():
+            self.assertEqual(game.get_uri(), url_for('get_game', game_id=game.game_key, move_id=game.move_id))
+            self.assertEqual(game.post_uri(), url_for('play_move', game_id=game.game_key, move_id=game.move_id))
+        
+    def test_get_board_uris_before_save_raise_error(self):
+        game = othello_model.OthelloBoardModel(6)
+        with othello_restapi.app.app_context():
+            with self.assertRaises(othello_model.GameNotStoredError):
+                game.get_uri()
+            with self.assertRaises(othello_model.GameNotStoredError):
+                game.post_uri()
         
 if __name__ == '__main__':
     unittest.main()
