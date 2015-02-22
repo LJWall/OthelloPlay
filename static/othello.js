@@ -9,13 +9,33 @@ Array.prototype.has=function(v){
 function OthelloModelView() {
     var self = this;
     self.pieceColours = ko.observableArray();
-    self.pieceSize = ko.observable();
-    self.boardSize = ko.observable();
+    self.pieceSize = ko.observable(500/8);
+    self.boardSize = ko.observable(8);
     self.boardLoaded = ko.observable(false);
     self.blackScore = ko.observable();
     self.whiteScore = ko.observable();
     self.blackToPlay = ko.observable();
     self.gameComplete = ko.observable();
+    
+    colours = new Array();
+    for (i=0; i<self.boardSize(); i++) {
+        colours[i]= new Array();
+        for (j=0; j<self.boardSize(); j++) {
+            colours[i][j] = "rgb(0,100,00)";
+        }
+    }
+    self.pieceColours(colours);
+    
+    self.processResponse = function(data){
+        self.loadResponse(data);
+        if (data['current_turn']=='O') {
+            $.ajax(self.data['URIs']['play'], {
+                    data: ko.toJSON({play: 'auto'}),
+                    type: "post", contentType: "application/json",
+                    success: self.processResponse
+                });
+        }
+    };
     
     self.loadResponse = function(data) {
         self.data = data;
@@ -54,7 +74,7 @@ function OthelloModelView() {
                 $.ajax(self.data['URIs']['play'], {
                     data: ko.toJSON({play: [x, y]}),
                     type: "post", contentType: "application/json",
-                    success: self.loadResponse
+                    success: self.processResponse
                 });
             }
             else {
@@ -74,7 +94,7 @@ function OthelloModelView() {
         });
     sammyApp.run();
     
-    $.getJSON('/game/65630/0', self.loadResponse);
+    //$.getJSON('/game/65630/0', self.loadResponse);
 }
 
 ko.applyBindings(new OthelloModelView());

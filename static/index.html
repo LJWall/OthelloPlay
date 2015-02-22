@@ -10,7 +10,7 @@
         <div>
             
         </div>
-        <div data-bind="if: boardLoaded">
+        <div>
         <svg data-bind="attr: {width: pieceSize()*boardSize()+10, height: pieceSize()*boardSize()+10}">
             <!-- ko foreach: { data: pieceColours, as: 'rows' } -->
                 <!-- ko foreach:{ data: rows, as: 'piece_colour' } -->
@@ -25,9 +25,11 @@
         </svg>
         </div>
         <br>
-        Current player: <strong data-bind="text: blackToPlay() ? 'Black' : 'White' "></strong>
-        <br>
-        Black: <span data-bind="text: blackScore"></span>. White: <span data-bind="text: whiteScore"></span>
+        <div data-bind="if: boardLoaded">
+            Current player: <strong data-bind="text: blackToPlay() ? 'Black' : 'White' "></strong>
+            <br>
+            Black: <span data-bind="text: blackScore"></span>. White: <span data-bind="text: whiteScore"></span>
+        </div>
         <script src="othello.js"></script>
     </body>
 </html>
