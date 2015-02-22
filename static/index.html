@@ -17,7 +17,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-4">
-                    <div class="alert alert-info" role="alert">Select a board size and start a new game...</div>
+                    
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h3 class="panel-title">New game</h3>
@@ -41,6 +41,9 @@
                             <p>White: <span data-bind="text: whiteScore"></span></p>
                         </div>
                     </div>
+                    <!-- /ko -->
+                    <!-- ko if: msgText() != '' -->
+                    <div data-bind="attr: {class: msgClass}" role="alert"><span data-bind="text: msgText"></span></div>
                     <!-- /ko -->
                 </div>
                 <div class="col-sm-8">

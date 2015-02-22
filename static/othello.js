@@ -16,6 +16,8 @@ function OthelloModelView() {
     self.whiteScore = ko.observable();
     self.blackToPlay = ko.observable();
     self.gameComplete = ko.observable();
+    self.msgText = ko.observable('');
+    self.msgClass = ko.observable('alert alert-danger')
     
     colours = new Array();
     for (i=0; i<self.boardSize(); i++) {
@@ -70,6 +72,7 @@ function OthelloModelView() {
     
     self.clickPiece = function(x, y) {
         if (self.boardLoaded()) {
+            self.msgText('')
             if (self.data['plays'].has([x, y])) {
                 $.ajax(self.data['URIs']['play'], {
                     data: ko.toJSON({play: [x, y]}),
@@ -78,7 +81,7 @@ function OthelloModelView() {
                 });
             }
             else {
-                alert('Invalid move');
+                self.msgText('Invalid move');
             }
         }
         
