@@ -1,12 +1,24 @@
 
+Array.prototype.has=function(v){
+    for (i=0;i<this.length;i++){
+        if (this[i]==String(v)) return true;
+    }
+    return false;
+}
+
 function OthelloModelView() {
     var self = this;
     self.pieceColours = ko.observableArray();
-    self.pieceSize = ko.observable(60);
-    self.boardSize = ko.observable(4);
+    self.pieceSize = ko.observable();
+    self.boardSize = ko.observable();
+    self.boardLoaded = ko.observable(false);
+    self.blackScore = ko.observable();
+    self.whiteScore = ko.observable();
+    self.blackToPlay = ko.observable();
+    self.gameComplete = ko.observable();
     
-    self.loadResponse = function(data)
-    {
+    self.loadResponse = function(data) {
+        self.data = data;
         colours = new Array();
         for (i=0; i<data['size']; i++) {
             colours[i]= new Array();
@@ -25,15 +37,44 @@ function OthelloModelView() {
         }
         self.boardSize(data['size']);
         self.pieceColours(colours);
-        self.pieceSize(500/data['size'])
+        self.pieceSize(500/data['size']);
+        self.blackScore(data['X'].length);
+        self.whiteScore(data['O'].length);
+        self.blackToPlay(data['current_turn']=='X');
+        self.gameComplete(data['game_complete']);
+        self.boardLoaded(true);
+        location.hash = data['URIs']['get'];
     };
     
-    $.getJSON('/game/40481/1', self.loadResponse);
 
     
     self.clickPiece = function(x, y) {
-        alert("x=" + x + "; y=" + y);  
+        if (self.boardLoaded()) {
+            if (self.data['plays'].has([x, y])) {
+                $.ajax(self.data['URIs']['play'], {
+                    data: ko.toJSON({play: [x, y]}),
+                    type: "post", contentType: "application/json",
+                    success: self.loadResponse
+                });
+            }
+            else {
+                alert('Invalid move');
+            }
+        }
+        
     };
+    
+    
+    sammyApp = Sammy(function() {
+        this.get(/\#(.*)/, function() {
+                if (!self.boardLoaded() || this.params['splat'] != self.data['URIs']['get']) {
+                    $.getJSON(this.params['splat'], self.loadResponse);   
+                }
+            });
+        });
+    sammyApp.run();
+    
+    $.getJSON('/game/65630/0', self.loadResponse);
 }
 
 ko.applyBindings(new OthelloModelView());
