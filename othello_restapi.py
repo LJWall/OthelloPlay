@@ -23,7 +23,7 @@ def not_found(error):
     return make_response(jsonify({'error': error.get_description()}), 404)
 
 @app.errorhandler(400)
-def not_found(error):
+def bad_request(error):
     return make_response(jsonify({'error': error.get_description()}), 400)
 
 @app.route('/game', methods = ['POST'])
