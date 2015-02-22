@@ -9,7 +9,7 @@ Array.prototype.has=function(v){
 function OthelloModelView() {
     var self = this;
     self.pieceColours = ko.observableArray();
-    self.pieceSize = ko.observable(500/8);
+    self.pieceSize = ko.observable(450/8);
     self.boardSize = ko.observable(8);
     self.boardLoaded = ko.observable(false);
     self.blackScore = ko.observable();
@@ -57,7 +57,7 @@ function OthelloModelView() {
         }
         self.boardSize(data['size']);
         self.pieceColours(colours);
-        self.pieceSize(500/data['size']);
+        self.pieceSize(450/data['size']);
         self.blackScore(data['X'].length);
         self.whiteScore(data['O'].length);
         self.blackToPlay(data['current_turn']=='X');
