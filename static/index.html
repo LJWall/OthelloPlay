@@ -6,29 +6,19 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
     </head>
     <body>
-        <p>Play othello!</p>
-        <p>Wombles!</p>
-        <p data-bind="text: womble"></p>
         
-        
-        <svg width="410" height="410">
+        <svg data-bind="attr: {width: pieceSize()*boardSize()+10, height: pieceSize()*boardSize()+10}">
             <!-- ko foreach: { data: pieceColours, as: 'rows' } -->
                 <!-- ko foreach:{ data: rows, as: 'piece_colour' } -->
-                    <rect data-bind="attr: {x: $parentContext.$index()*100+5, y: $index()*100+5}"
-                            width="100" height="100" style="fill:rgb(0,100,00);stroke-width:5;stroke:rgb(0,60,0)" />
-                    <circle r="40" stroke-width="4" data-bind="click: $root.clickPiece,
-                            attr: {cx: $parentContext.$index()*100+55, cy: $index()*100+55, fill: piece_colour, stroke: piece_colour}" />            
+                    <rect data-bind="attr: {x: $parentContext.$index()*$root.pieceSize()+5, y: $index()*$root.pieceSize()+5,
+                                    width: $root.pieceSize, height: $root.pieceSize}"
+                            style="fill:rgb(0,100,00);stroke-width:5;stroke:rgb(0,60,0)" />
+                    <circle stroke-width="4" data-bind="click: function(data, event) {$root.clickPiece($parentContext.$index(), $index())}, 
+                            attr: {r: $root.pieceSize()*0.4, cx: $parentContext.$index()*$root.pieceSize()+($root.pieceSize())/2 +5,
+                            cy: $index()*$root.pieceSize()+($root.pieceSize())/2+5, fill: piece_colour, stroke: piece_colour}" />            
                 <!-- /ko -->
             <!-- /ko -->
         </svg>
-        
-        <button data-bind="click: someFunc">Click me! click me!</button>
-        <br>
-        <svg width="100" height="100">
-            <rect width="100" height="100" style="fill:rgb(0,100,00);stroke-width:10;stroke:rgb(0,60,0)" />
-            <circle cx="50" cy="50" r="40" stroke-width="4" data-bind="attr: {fill: someColour, stroke: someColour}" />            
-        </svg>
-        <div data-bind="html: someHTML"></div>
         <script src="othello.js"></script>
     </body>
 </html>
