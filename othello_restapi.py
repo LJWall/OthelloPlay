@@ -9,10 +9,7 @@ app = Flask(__name__)
 
 import othello_model
 
-app.config['DATABASE_USER'] = 'othello'
-app.config['DATABASE_PASSWORD'] = 'othello'
-app.config['DATABASE_NAME'] = 'Othello'
-app.config['DATABASE_HOST'] = '127.0.0.1'
+app.config.from_pyfile('config.cfg')
 
 @app.before_request
 def connect_db():
