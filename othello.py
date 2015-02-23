@@ -93,6 +93,8 @@ class OthelloBoardClass(dict):
         return {self.players[i]: len([k for k in self if self[k]==self.players[i]]) for i in [0,1]}
 
     def get_plays(self, simple=False):
+        if self.game_complete:
+            return dict()
         play_options = self.get_boundary();
         play_results = dict()
         for p in play_options:
