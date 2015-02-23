@@ -25,9 +25,9 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <label for="boardSizeSelect">Board size</label>
-                                <select id="boardSizeSelect" class="form-control"><option value="6">6 x 6</option><option value="8">8 x 8</option><option value="10">10 x 10</option></select>
+                                <select id="boardSizeSelect" class="form-control" data-bind="options: boardSizeOptions, optionsText: 'text', value: newGameSize"></select>
                             </div>
-                            <button class="btn btn-primary">Start</button>
+                            <button class="btn btn-primary" data-bind="click: newGame">Start</button>
                         </div>
                     </div>
                     <!-- ko if: boardLoaded -->
@@ -36,7 +36,7 @@
                             <h3 class="panel-title">Score</h3>
                         </div>
                         <div class="panel-body">
-                            <p>Current player: <strong data-bind="text: blackToPlay() ? 'Black' : 'White' "></strong></p>
+                            <p>Current player: <strong data-bind="text: gameComplete() ? 'Game complete' : (blackToPlay() ? 'Black' : 'White') "></strong></p>
                             <p>Black: <span data-bind="text: blackScore"></span></p>
                             <p>White: <span data-bind="text: whiteScore"></span></p>
                         </div>

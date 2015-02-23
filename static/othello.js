@@ -15,7 +15,7 @@ function OthelloModelView() {
     self.blackScore = ko.observable();
     self.whiteScore = ko.observable();
     self.blackToPlay = ko.observable();
-    self.gameComplete = ko.observable();
+    self.gameComplete = ko.observable(false);
 
     self.defaultMsgText = 'To save a game and return to it latter just bookmark the page.  Should you wish to amend a move (or two) use the broser back button.';
     self.defaultMsgClass = 'alert alert-info';
@@ -23,12 +23,14 @@ function OthelloModelView() {
     self.msgText = ko.observable(self.defaultMsgText);
     self.msgClass = ko.observable(self.defaultMsgClass);
     
+    self.boardSizeOptions = [{size: 6, text: '6 x 6'}, {size: 8, text: '8 x 8'}, {size: 10, text: '10 x 10 (for the committed)'}];
+    self.newGameSize = ko.observable(self.boardSizeOptions[1]);
 
     self.makeBoardArray = function(size) {
         colours = new Array();
         for (i=0; i<size; i++) {
             colours[i]= new Array();
-            for (j=0; j<self.boardSize(); j++) {
+            for (j=0; j<size; j++) {
                 colours[i][j] = "rgb(0,100,00)";
             }
         }
@@ -63,18 +65,26 @@ function OthelloModelView() {
         self.whiteScore(data['O'].length);
         self.blackToPlay(data['current_turn']=='X');
         self.gameComplete(data['game_complete']);
-        self.boardLoaded(true);
-        if (data['current_turn']=='O' && location.hash == data['URIs']['get']) {
-            self.msgText('<strong>Sneaky!</sneaky> You may now play a move as white.');
-            self.msgClass('alert alert-warning');
+        if (data['game_complete']) {
+            if (data['X'].length > data['O'].length) {
+                self.msgText('Congratulations! You won by ' + String(data['X'].length - data['O'].length) + ' points.');
+                self.msgClass('alert alert-success');
+            } else if (data['X'].length < data['O'].length) {
+                self.msgText('Game over. Computer won by ' + String(data['O'].length - data['X'].length) + ' points.');
+                self.msgClass('alert alert-danger');
+            } else {
+                self.msgText('It\' a draw..');
+                self.msgClass('alert alert-warning');
+            }
         }
+        self.boardLoaded(true);
         location.hash = data['URIs']['get'];
     };
     
 
     
     self.clickPiece = function(x, y) {
-        if (self.boardLoaded()) {
+        if (self.boardLoaded() && !self.gameComplete()) {
             if (self.data['plays'].has([x, y])) {
                 self.msgText(self.defaultMsgText);
                 self.msgClass(self.defaultMsgClass);
@@ -90,6 +100,14 @@ function OthelloModelView() {
             }
         }
         
+    };
+    
+    self.newGame = function() {
+        $.ajax('/game', {
+                    data: ko.toJSON({game_size: self.newGameSize()['size']}),
+                    type: "post", contentType: "application/json",
+                    success: self.processResponse
+                });
     };
     
     sammyApp = Sammy(function() {
