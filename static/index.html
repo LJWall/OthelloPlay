@@ -46,16 +46,16 @@
                     <!-- /ko -->
                 </div>
                 <div class="col-sm-8">
-                    <svg data-bind="attr: {width: pieceSize()*boardSize()+10, height: pieceSize()*boardSize()+10}">
+                    <svg data-bind="attr: {width: pieceSize()*$root.data().board.length+10, height: pieceSize()*$root.data().board.length+10}">
                         <!-- ko foreach: { data: $root.data().board, as: 'rows' } -->
                             <!-- ko foreach:{ data: rows, as: 'piece_type' } -->
                                 <rect data-bind="attr: {x: $parentContext.$index()*$root.pieceSize()+5, y: $index()*$root.pieceSize()+5,
                                                 width: $root.pieceSize, height: $root.pieceSize}"
                                         style="fill:rgb(0,100,00);stroke-width:5;stroke:rgb(0,60,0)" />
-                                <circle stroke-width="0" data-bind="click: function(data, event) {$root.clickPiece($parentContext.$index(), $index(), piece_type)}, 
+                                <circle stroke-width="0" data-bind="click: function(data, event) {$root.clickPiece($parentContext.$index(), $index())}, 
                                         attr: {r: $root.pieceSize()*0.4, cx: $parentContext.$index()*$root.pieceSize()+($root.pieceSize())/2 +5,
                                         cy: $index()*$root.pieceSize()+($root.pieceSize())/2+5,
-                                        fill: function(data, event) {$root.getPieceColour($parentContext.$index(), $index()}}" />            
+                                        fill: $root.getPieceColour(piece_type)}" />            
                             <!-- /ko -->
                         <!-- /ko -->
                     </svg>

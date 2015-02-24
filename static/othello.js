@@ -8,42 +8,35 @@ Array.prototype.has=function(v){
 
 function OthelloModelView() {
     var self = this;
-    self.data = ko.observable({board: [["", "", "", ""],["", "", "", ""],["", "", "", ""],["", "", "", ""]], current_turn: "X", game_complete: false});
-    //self.data = ko.observable();
-    self.pieceColours = ko.observableArray();
-    self.pieceSize = ko.observable(500/4);
-    self.boardSize = ko.observable(4);
+    
+    // Board state
+    self.data = ko.observable({board: [["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""]],
+                              current_turn: "X",
+                              game_complete: false});
+    self.pieceSize = ko.observable(500/6);
+    self.boardSize = ko.observable(6);
     self.boardLoaded = ko.observable(false);
+    
+    // Score board info
     self.blackScore = ko.observable();
     self.whiteScore = ko.observable();
     self.blackToPlay = ko.observable();
     self.gameComplete = ko.observable(false);
 
+    //Message and warning info
     self.defaultMsgText = 'To save a game and return to it latter just bookmark the page.  Should you wish to amend a move (or two) use the broser back button.';
     self.defaultMsgClass = 'alert alert-info';
-
     self.msgText = ko.observable(self.defaultMsgText);
     self.msgClass = ko.observable(self.defaultMsgClass);
     
+    // New game area
     self.boardSizeOptions = [{size: 6, text: '6 x 6'}, {size: 8, text: '8 x 8'}, {size: 10, text: '10 x 10 (for the committed)'}];
     self.newGameSize = ko.observable(self.boardSizeOptions[1]);
-
-    self.makeBoardArray = function(size) {
-        colours = new Array();
-        for (i=0; i<size; i++) {
-            colours[i]= new Array();
-            for (j=0; j<size; j++) {
-                colours[i][j] = "rgb(0,100,00)";
-            }
-        }
-        return colours;
-    };
-    self.pieceColours(self.makeBoardArray(self.boardSize()));
     
     self.processResponse = function(data){
         self.loadResponse(data);
         if (data['current_turn']=='O' && !data['game_complete']) {
-            $.ajax(self.data['URIs']['play'], {
+            $.ajax(self.data().URIs.play, {
                     data: ko.toJSON({play: 'auto'}),
                     type: "post", contentType: "application/json",
                     success: self.processResponse
@@ -53,16 +46,6 @@ function OthelloModelView() {
     
     self.loadResponse = function(data) {
         self.data(data);
-        //raise "You're here";
-        /*colours = self.makeBoardArray(data['size']);
-        for (i=0; i < data['X'].length; i++) {
-            colours[data['X'][i][0]][data['X'][i][1]] = "black";
-        }
-        for (i=0; i < data['O'].length; i++) {
-            colours[data['O'][i][0]][data['O'][i][1]] = "rgb(200,200,200)";
-        }
-        self.boardSize(data['size']);
-        self.pieceColours(colours);*/
         
         self.pieceSize(500/data.board.length);
         blackScore=0;
@@ -79,9 +62,7 @@ function OthelloModelView() {
         }
         self.blackScore(blackScore);
         self.whiteScore(whiteScore);
-        //self.blackToPlay(data['current_turn']=='X');
         
-        //self.gameComplete(data['game_complete']);
         if (data['game_complete']) {
             if (self.blackScore() > self.whiteScore()) {
                 self.msgText('Congratulations! You won by ' + String(self.blackScore() - self.whiteScore()) + ' points.');
@@ -98,21 +79,22 @@ function OthelloModelView() {
         location.hash = data['URIs']['get'];
     };
     
-    self.getPieceColour = function(x, y) {
-        switch(self.data()['board'][x][y]) {
+    self.getPieceColour = function(piece_type) {
+        switch(piece_type) {
             case 'X':
                 return 'rgb(0,0,0)';
+                break;
             case 'O':
                 return 'rgb(200,200,200)';
+                break;
             case 'P':
                 return 'rgb(0,100,00)';
-            default:
-                return 'rgb(0,100,00)';
+                break;
         }
+        return 'rgb(0,100,00)';
     };
     
-    self.clickPiece = function(x, y, p_type) {
-
+    self.clickPiece = function(x, y) {
         if (self.boardLoaded() && !self.data().game_complete) {
             if (self.data().board[x][y]=='P') {
                 self.msgText(self.defaultMsgText);
