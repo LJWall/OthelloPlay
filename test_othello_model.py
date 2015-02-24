@@ -179,11 +179,13 @@ class OthelloBoardModelTest(unittest.TestCase):
             game_dict = game.get_jsonable_object()
             self.assertEqual(game_dict['URIs'], {'get': game.get_uri(), 'play': game.post_uri()})
         self.assertEqual(game_dict['game_complete'], False)
-        self.assertEqual(sorted(game_dict['X']), [[2, 3],[3, 2]])
-        self.assertEqual(sorted(game_dict['O']), [[2, 2],[3, 3]])
-        self.assertEqual(sorted(game_dict['plays']), [[1, 2], [2, 1], [3, 4], [4, 3]])
+        self.assertEqual(game_dict['board'], [['', '', '', '', '', ''],
+                                              ['', '', 'P', '', '', ''],
+                                              ['', 'P', 'O', 'X', '', ''],
+                                              ['', '', 'X', 'O', 'P', ''],
+                                              ['', '', '', 'P', '', ''],
+                                              ['', '', '', '', '', ''],])
         self.assertEqual(game_dict['current_turn'], 'X')
-        self.assertEqual(game_dict['size'], 6)
         
     def test_clear_all(self):
         game = othello_model.OthelloBoardModel(6)

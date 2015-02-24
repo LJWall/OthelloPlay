@@ -80,8 +80,9 @@ class OthelloRestAPITestCase(unittest.TestCase):
             self.assertRegex(response.headers['Location'], url_for('get_game', game_id=game.game_key, move_id=1) + '$')
         game_data = json_loads(response.data)
         # check a move has been made
-        self.assertEqual(len(game_data['X']), 4)
-        self.assertEqual(game_data['current_turn'], 'O')
+        with othello_restapi.app.app_context():
+            self.assertNotEqual(game.get_jsonable_object()['board'], game_data['board'])
+        self.assertEqual(game_data['current_turn'], 'O')    
         
     def test_game_play_invalid_move_gives_400(self):
         game = othello_model.OthelloBoardModel(6)

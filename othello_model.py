@@ -102,11 +102,14 @@ class OthelloBoardModel(othello.OthelloBoardClass):
     
     def get_jsonable_object(self):
         game_dict = dict()
-        game_dict['X'] = [list(key) for key in self if self[key]=='X']
-        game_dict['O'] = [list(key) for key in self if self[key]=='O']
+        game_dict['board'] = []
+        for x in range(self.size):
+            game_dict['board'].append(['']*self.size)
+        for key in self:
+            game_dict['board'][key[0]][key[1]] = self[key]
+        for play in self.get_plays().keys():
+            game_dict['board'][play[0]][play[1]] = 'P'
         game_dict['current_turn'] = self.current_turn
-        game_dict['plays'] = [list(play) for play in self.get_plays().keys()]
-        game_dict['size'] = self.size
         game_dict['game_complete'] = self.game_complete
         game_dict['URIs'] = {'get': self.get_uri()}
         if not self.game_complete:
