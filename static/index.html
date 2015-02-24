@@ -55,7 +55,7 @@
                                 <circle stroke-width="0" data-bind="click: function(data, event) {$root.clickPiece($parentContext.$index(), $index())}, 
                                         attr: {r: $root.pieceSize()*0.4, cx: $parentContext.$index()*$root.pieceSize()+($root.pieceSize())/2 +5,
                                         cy: $index()*$root.pieceSize()+($root.pieceSize())/2+5,
-                                        fill: $root.getPieceColour(piece_type)}" />            
+                                        fill: $root.getPieceColour($parentContext.$index(), $index()) }" />            
                             <!-- /ko -->
                         <!-- /ko -->
                     </svg>

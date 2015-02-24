@@ -1,11 +1,4 @@
 
-Array.prototype.has=function(v){
-    for (i=0;i<this.length;i++){
-        if (this[i]==String(v)) return true;
-    }
-    return false;
-}
-
 function OthelloModelView() {
     var self = this;
     
@@ -29,7 +22,7 @@ function OthelloModelView() {
     self.msgText = ko.observable(self.defaultMsgText);
     self.msgClass = ko.observable(self.defaultMsgClass);
     
-    // New game area
+    // New game option
     self.boardSizeOptions = [{size: 6, text: '6 x 6'}, {size: 8, text: '8 x 8'}, {size: 10, text: '10 x 10 (for the committed)'}];
     self.newGameSize = ko.observable(self.boardSizeOptions[1]);
     
@@ -44,9 +37,9 @@ function OthelloModelView() {
         }
     };
     
+    
     self.loadResponse = function(data) {
-        self.data(data);
-        
+        self.data(data);        
         self.pieceSize(500/data.board.length);
         blackScore=0;
         whiteScore=0;
@@ -79,19 +72,16 @@ function OthelloModelView() {
         location.hash = data['URIs']['get'];
     };
     
-    self.getPieceColour = function(piece_type) {
-        switch(piece_type) {
+    self.getPieceColour = function(x, y) {
+        switch(self.data().board[x][y]) {
             case 'X':
                 return 'rgb(0,0,0)';
-                break;
             case 'O':
                 return 'rgb(200,200,200)';
-                break;
-            case 'P':
-                return 'rgb(0,100,00)';
-                break;
+            //case 'P':
+            //    return 'rgb(0,100,0)';
         }
-        return 'rgb(0,100,00)';
+        return 'rgb(0,100,0)';
     };
     
     self.clickPiece = function(x, y) {
