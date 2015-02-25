@@ -23,6 +23,7 @@ function OthelloModelView() {
     self.pieceSize = ko.observable(500/6);
     self.boardSize = ko.observable(6);
     self.boardLoaded = ko.observable(false);
+    self.showPlays = ko.observable(false);
     
     // Score board info
     self.blackScore = ko.observable();
@@ -91,6 +92,10 @@ function OthelloModelView() {
                 self.msgClass('alert alert-warning');
             }
         }
+        else {
+            self.msgText(defaultMsgText);
+            self.msgClass(defaultMsgClass);
+        }
         self.boardLoaded(true);
         location.hash = URIs.get;
     };
@@ -101,11 +106,17 @@ function OthelloModelView() {
                 return 'rgb(0,0,0)';
             case 'O':
                 return 'rgb(200,200,200)';
-            //case 'P':
-            //    return 'rgb(0,100,0)';
         }
-        if (piece.mouseOver()) {
-            return 'rgb(0,50,0)';
+        if (piece.mouseOver() && !self.game_complete()) {
+            if (self.current_turn()=='X') {
+                return 'rgb(0,50,0)';
+            }
+            else {
+                return 'rgb(150,200,150)';
+            }
+        }
+        if (piece.status()=='P' && self.showPlays()) {
+            return 'rgb(0,90,0)';
         }
         return 'rgb(0,100,0)';
     };
