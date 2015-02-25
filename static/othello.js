@@ -95,14 +95,17 @@ function OthelloModelView() {
         location.hash = URIs.get;
     };
     
-    self.getPieceColour = function(piece_type) {
-        switch(piece_type) {
+    self.getPieceColour = function(piece) {
+        switch(piece.status()) {
             case 'X':
                 return 'rgb(0,0,0)';
             case 'O':
                 return 'rgb(200,200,200)';
             //case 'P':
             //    return 'rgb(0,100,0)';
+        }
+        if (piece.mouseOver()) {
+            return 'rgb(0,50,0)';
         }
         return 'rgb(0,100,0)';
     };
@@ -126,6 +129,7 @@ function OthelloModelView() {
         
     };
     
+
     self.newGame = function() {
         $.ajax('/game', {
                     data: ko.toJSON({game_size: self.newGameSize()['size']}),

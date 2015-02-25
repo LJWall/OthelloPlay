@@ -54,7 +54,8 @@
                                 <circle stroke-width="0" data-bind="click: $root.clickPiece, 
                                         attr: {r: $root.pieceSize()*0.4, cx: b_item.x()*$root.pieceSize()+($root.pieceSize())/2 +5,
                                         cy: b_item.y()*$root.pieceSize()+($root.pieceSize())/2+5,
-                                        fill: $root.getPieceColour(b_item.status()) }" /> 
+                                        fill: $root.getPieceColour(b_item)},
+                                        event: {mouseover: function(item) {item.mouseOver(true)}, mouseout: function(item) {item.mouseOver(false)}}" /> 
                         <!-- /ko -->
                     </svg>
                 </div>
