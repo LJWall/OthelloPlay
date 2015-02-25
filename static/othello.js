@@ -12,9 +12,6 @@ function OthelloModelView() {
     var URIs;
     
     // Board state
-    self.data = ko.observable({board: [["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""], ["", "", "", "", "", ""]],
-                              current_turn: "X",
-                              game_complete: false});
     self.board = ko.observableArray();
     for (i=0; i<6; i++) {
         for (j=0; j<6; j++) {
@@ -34,10 +31,10 @@ function OthelloModelView() {
     self.gameComplete = ko.observable(false);
 
     //Message and warning info
-    self.defaultMsgText = 'To save a game and return to it latter just bookmark the page.  Should you wish to amend a move (or two) use the broser back button.';
-    self.defaultMsgClass = 'alert alert-info';
-    self.msgText = ko.observable(self.defaultMsgText);
-    self.msgClass = ko.observable(self.defaultMsgClass);
+    var defaultMsgText = 'To save a game and return to it latter just bookmark the page.  Should you wish to amend a move (or two) use the broser back button.';
+    var defaultMsgClass = 'alert alert-info';
+    self.msgText = ko.observable(defaultMsgText);
+    self.msgClass = ko.observable(defaultMsgClass);
     
     // New game option
     self.boardSizeOptions = [{size: 6, text: '6 x 6'}, {size: 8, text: '8 x 8'}, {size: 10, text: '10 x 10 (for the committed)'}];
@@ -56,7 +53,7 @@ function OthelloModelView() {
     
     
     self.loadResponse = function(data) {
-        self.data(data);
+        URIs = data.URIs;
         self.game_complete(data.game_complete);
         self.current_turn(data.current_turn);
         self.boardSize(data.board.length);
@@ -95,7 +92,7 @@ function OthelloModelView() {
             }
         }
         self.boardLoaded(true);
-        location.hash = data['URIs']['get'];
+        location.hash = URIs.get;
     };
     
     self.getPieceColour = function(piece_type) {
@@ -113,9 +110,9 @@ function OthelloModelView() {
     self.clickPiece = function(b_item, event) {
         if (self.boardLoaded() && !self.game_complete()) {
             if (b_item.status()=='P') {
-                self.msgText(self.defaultMsgText);
-                self.msgClass(self.defaultMsgClass);
-                $.ajax(self.data().URIs.play, {
+                self.msgText(defaultMsgText);
+                self.msgClass(defaultMsgClass);
+                $.ajax(URIs.play, {
                     data: ko.toJSON({play: [b_item.x(), b_item.y()]}),
                     type: "post", contentType: "application/json",
                     success: self.processResponse
@@ -139,7 +136,7 @@ function OthelloModelView() {
     
     sammyApp = Sammy(function() {
         this.get(/\#(.*)/, function() {
-                if (!self.boardLoaded() || this.params['splat'] != self.data().URIs.get) {
+                if (!self.boardLoaded() || this.params['splat'] != URIs.get) {
                     $.getJSON(this.params['splat'], self.loadResponse);   
                 }
             });
