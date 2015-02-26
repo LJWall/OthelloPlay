@@ -9,8 +9,7 @@
         <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet" />
     </head>
     <body>
-        
-        <div class="container">
+        <div id="main" class="container">
             <div class="page-header">
                     <h1>Play othello</h1>
             </div>
@@ -44,6 +43,10 @@
                     <!-- ko if: msgText() != '' -->
                     <div data-bind="attr: {class: msgClass}" role="alert"><span data-bind="text: msgText"></span></div>
                     <!-- /ko -->
+                    <button type="button" class="btn btn-primary" data-bind="event: {mouseover: function() {showPlays(true)}, mouseout: function() {showPlays(false)}}">
+                        <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> Show moves
+                    </button>
+                    
                 </div>
                 <div class="col-sm-8">
                     <svg data-bind="attr: {width: pieceSize()*boardSize()+10, height: pieceSize()*boardSize()+10}">

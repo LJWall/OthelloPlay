@@ -32,7 +32,7 @@ function OthelloModelView() {
     self.gameComplete = ko.observable(false);
 
     //Message and warning info
-    var defaultMsgText = 'To save a game and return to it latter just bookmark the page.  Should you wish to amend a move (or two) use the broser back button.';
+    var defaultMsgText = 'To save a game and return to it latter just bookmark the page.  Should you wish to amend a move (or two) use the browser back button.';
     var defaultMsgClass = 'alert alert-info';
     self.msgText = ko.observable(defaultMsgText);
     self.msgClass = ko.observable(defaultMsgClass);
@@ -116,7 +116,7 @@ function OthelloModelView() {
             }
         }
         if (piece.status()=='P' && self.showPlays()) {
-            return 'rgb(0,90,0)';
+            return 'rgb(0,75,0)';
         }
         return 'rgb(0,100,0)';
     };
