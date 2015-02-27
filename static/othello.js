@@ -46,7 +46,7 @@ function OthelloModelView() {
     
     // New game option
     self.boardSizeOptions = [{size: 6, text: '6 x 6'}, {size: 8, text: '8 x 8'}, {size: 10, text: '10 x 10 (for the committed)'}];
-    self.newGameSize = ko.observable(self.boardSizeOptions[1]);
+    //self.newGameSize = ko.observable(self.boardSizeOptions[1]);
     
     self.turnText = ko.computed(function() {
         if (self.gameState() == self.GameStateEnum.NoGame) {
@@ -169,9 +169,9 @@ function OthelloModelView() {
     };
     
 
-    self.newGame = function() {
+    self.newGame = function(size) {
         $.ajax('/game', {
-                    data: ko.toJSON({game_size: self.newGameSize()['size']}),
+                    data: ko.toJSON({game_size: size}),
                     type: "post", contentType: "application/json",
                     success: self.processResponse
                 });

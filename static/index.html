@@ -7,44 +7,55 @@
         <script src="sammy-0.7.6.min.js"></script>
         <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
         <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="/static/othello.css" rel="stylesheet" />
     </head>
     <body>
+        
+        <div class="modal fade" id="newGame" tabindex="-1" role="dialog" aria-labelledby="newGameLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h4 class="modal-title" id="newGameLabel">New game</h4>
+                    </div>
+                    <div class="modal-body">
+                        <!-- ko foreach: { data: boardSizeOptions, as: 'boardSize' } -->
+                            <div class="button-group margin-top-xxs">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" data-bind="click: function() {$root.newGame(boardSize.size)}"><span data-bind="text: boardSize.text"></span></button>
+                            </div>
+                        <!-- /ko -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div id="main" class="container">
             <div class="page-header">
                     <h1>Play othello</h1>
             </div>
             <div class="row">
                 <div class="col-sm-4">
-                    
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">New game</h3>
-                        </div>
-                        <div class="panel-body">
-                            <div class="form-group">
-                                <label for="boardSizeSelect">Board size</label>
-                                <select id="boardSizeSelect" class="form-control" data-bind="options: boardSizeOptions, optionsText: 'text', value: newGameSize"></select>
-                            </div>
-                            <button class="btn btn-primary" data-bind="click: newGame">Start</button>
-                        </div>
-                    </div>
-                    <div class="panel panel-info">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newGame">
+                        New game
+                    </button>
+                    <button type="button" class="btn btn-primary" data-bind="event: {mouseover: function() {showPlays(true)}, mouseout: function() {showPlays(false)}}">
+                        <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> Show moves
+                    </button>
+                    <div class="panel panel-primary margin-top-l">
                         <div class="panel-heading">
                             <h3 class="panel-title">Score</h3>
                         </div>
                         <div class="panel-body">
-                            <p>Current player: <strong data-bind="text: turnText "></strong></p>
                             <p>Black: <span data-bind="text: blackScore"></span></p>
                             <p>White: <span data-bind="text: whiteScore"></span></p>
                         </div>
+                        <div class="panel-footer">Current player: <strong data-bind="text: turnText "></strong></div>
                     </div>
                     <!-- ko if: msgText() != '' -->
-                    <div data-bind="attr: {class: msgClass}" role="alert"><span data-bind="text: msgText"></span></div>
+                        <div data-bind="attr: {class: msgClass}" role="alert"><span data-bind="text: msgText"></span></div>
                     <!-- /ko -->
-                    <button type="button" class="btn btn-primary" data-bind="event: {mouseover: function() {showPlays(true)}, mouseout: function() {showPlays(false)}}">
-                        <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> Show moves
-                    </button>
-                    
                 </div>
                 <div class="col-sm-8">
                     <svg data-bind="attr: {width: pieceSize()*boardSize()+10, height: pieceSize()*boardSize()+10}">
@@ -60,7 +71,6 @@
                         <!-- /ko -->
                     </svg>
                 </div>
-                
             </div>
         </div>
         <script src="othello.js"></script>
