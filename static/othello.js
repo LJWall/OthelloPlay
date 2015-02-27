@@ -48,6 +48,21 @@ function OthelloModelView() {
     self.boardSizeOptions = [{size: 6, text: '6 x 6'}, {size: 8, text: '8 x 8'}, {size: 10, text: '10 x 10 (for the committed)'}];
     self.newGameSize = ko.observable(self.boardSizeOptions[1]);
     
+    self.turnText = ko.computed(function() {
+        if (self.gameState() == self.GameStateEnum.NoGame) {
+            return '';
+        }
+        if (self.gameState() == self.GameStateEnum.GameComplete) {
+            return 'Game complete';
+        }
+        if (self.current_turn() == 'X') {
+            return 'Black';
+        }
+        else {
+            return 'White';
+        }
+    });
+    
     self.processResponse = function(data){
         self.loadResponse(data);
         if (data['current_turn']=='O' && !data['game_complete']) {

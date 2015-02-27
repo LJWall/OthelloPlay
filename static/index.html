@@ -33,7 +33,7 @@
                             <h3 class="panel-title">Score</h3>
                         </div>
                         <div class="panel-body">
-                            <p>Current player: <strong data-bind="text: (gameState == GameStateEnum.GameComplete) ? 'Game complete' : (current_turn()=='X' ? 'Black' : 'White') "></strong></p>
+                            <p>Current player: <strong data-bind="text: turnText "></strong></p>
                             <p>Black: <span data-bind="text: blackScore"></span></p>
                             <p>White: <span data-bind="text: whiteScore"></span></p>
                         </div>
