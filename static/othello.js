@@ -7,9 +7,17 @@ function boardItem(status, x, y) {
 };
 
 
+
 function OthelloModelView() {
     var self = this;
     var URIs;
+    
+    self.GameStateEnum = {
+        NoGame: 0,
+        UserToPlay: 1,
+        WaitingServerResponse: 2,
+        GameComplete: 3
+    };
     
     // Board state
     self.board = ko.observableArray();
@@ -18,12 +26,11 @@ function OthelloModelView() {
             self.board.push(new boardItem('', i, j));
         }
     }
-    self.game_complete = ko.observable(false);
     self.current_turn = ko.observable();
     self.pieceSize = ko.observable(500/6);
     self.boardSize = ko.observable(6);
-    self.boardLoaded = ko.observable(false);
     self.showPlays = ko.observable(false);
+    self.gameState = ko.observable(self.GameStateEnum.NoGame);
     
     // Score board info
     self.blackScore = ko.observable();
@@ -44,6 +51,7 @@ function OthelloModelView() {
     self.processResponse = function(data){
         self.loadResponse(data);
         if (data['current_turn']=='O' && !data['game_complete']) {
+            self.gameState(self.GameStateEnum.WaitingServerResponse);
             $.ajax(data.URIs.play, {
                     data: ko.toJSON({play: 'auto'}),
                     type: "post", contentType: "application/json",
@@ -55,7 +63,6 @@ function OthelloModelView() {
     
     self.loadResponse = function(data) {
         URIs = data.URIs;
-        self.game_complete(data.game_complete);
         self.current_turn(data.current_turn);
         self.boardSize(data.board.length);
         self.board.removeAll(data.board.length);
@@ -82,10 +89,10 @@ function OthelloModelView() {
         
         if (data['game_complete']) {
             if (self.blackScore() > self.whiteScore()) {
-                self.msgText('Congratulations! You won by ' + String(self.blackScore() - self.whiteScore()) + ' points.');
+                self.msgText('Congratulations! You win by ' + String(self.blackScore() - self.whiteScore()) + ' points.');
                 self.msgClass('alert alert-success');
             } else if (self.blackScore() < self.whiteScore()) {
-                self.msgText('Game over. Computer won by ' + String(self.whiteScore() - self.blackScore()) + ' points.');
+                self.msgText('Game over. Computer wins by ' + String(self.whiteScore() - self.blackScore()) + ' points.');
                 self.msgClass('alert alert-danger');
             } else {
                 self.msgText('It\' a draw..');
@@ -96,7 +103,12 @@ function OthelloModelView() {
             self.msgText(defaultMsgText);
             self.msgClass(defaultMsgClass);
         }
-        self.boardLoaded(true);
+        if (data['game_complete']) {
+            self.gameState(self.GameStateEnum.GameComplete);
+        }
+        else {
+            self.gameState(self.GameStateEnum.UserToPlay);
+        }
         location.hash = URIs.get;
     };
     
@@ -107,7 +119,7 @@ function OthelloModelView() {
             case 'O':
                 return 'rgb(200,200,200)';
         }
-        if (piece.mouseOver() && !self.game_complete()) {
+        if (piece.mouseOver() && self.gameState() == self.GameStateEnum.UserToPlay) {
             if (self.current_turn()=='X') {
                 return 'rgb(0,50,0)';
             }
@@ -122,10 +134,11 @@ function OthelloModelView() {
     };
     
     self.clickPiece = function(b_item, event) {
-        if (self.boardLoaded() && !self.game_complete()) {
+        if (self.gameState() == self.GameStateEnum.UserToPlay) {
             if (b_item.status()=='P') {
                 self.msgText(defaultMsgText);
                 self.msgClass(defaultMsgClass);
+                self.gameState(self.GameStateEnum.WaitingServerResponse);
                 $.ajax(URIs.play, {
                     data: ko.toJSON({play: [b_item.x(), b_item.y()]}),
                     type: "post", contentType: "application/json",
@@ -151,7 +164,7 @@ function OthelloModelView() {
     
     sammyApp = Sammy(function() {
         this.get(/\#(.*)/, function() {
-                if (!self.boardLoaded() || this.params['splat'] != URIs.get) {
+                if (self.gameState() == self.GameStateEnum.NoGame || this.params['splat'] != URIs.get) {
                     $.getJSON(this.params['splat'], self.loadResponse);   
                 }
             });

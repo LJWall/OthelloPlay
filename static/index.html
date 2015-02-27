@@ -28,18 +28,16 @@
                             <button class="btn btn-primary" data-bind="click: newGame">Start</button>
                         </div>
                     </div>
-                    <!-- ko if: boardLoaded -->
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             <h3 class="panel-title">Score</h3>
                         </div>
                         <div class="panel-body">
-                            <p>Current player: <strong data-bind="text: game_complete() ? 'Game complete' : (current_turn()=='X' ? 'Black' : 'White') "></strong></p>
+                            <p>Current player: <strong data-bind="text: (gameState == GameStateEnum.GameComplete) ? 'Game complete' : (current_turn()=='X' ? 'Black' : 'White') "></strong></p>
                             <p>Black: <span data-bind="text: blackScore"></span></p>
                             <p>White: <span data-bind="text: whiteScore"></span></p>
                         </div>
                     </div>
-                    <!-- /ko -->
                     <!-- ko if: msgText() != '' -->
                     <div data-bind="attr: {class: msgClass}" role="alert"><span data-bind="text: msgText"></span></div>
                     <!-- /ko -->
