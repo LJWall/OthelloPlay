@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Not found</title>
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div id="main" class="container">
+            <div class="page-header">
+                    <h1>Not found...</h1>
+            </div>
+            We can't find the page you're looking for. Try heading back to 
+            {% if url_home %}
+                <a href="{{ url_home }}">{{ url_home }}</a>.
+            {% else %}
+                <a href="/">the homepage</a>.
+            {% endif %}
+
+    </body>
+</html>

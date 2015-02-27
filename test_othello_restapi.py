@@ -32,7 +32,7 @@ class OthelloRestAPITestCase(unittest.TestCase):
     def test_404_error(self):
         response = self.app.get('/no/such/URI')
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.mimetype, 'application/json')
+        self.assertEqual(response.mimetype, 'text/html')
         
     def test_get_game(self):
         game = othello_model.OthelloBoardModel(6)

@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from flask import Flask, jsonify, make_response, request, g
+from flask import Flask, jsonify, make_response, request, g, render_template, redirect, url_for
 from flask.json import loads as json_loads
 from werkzeug.exceptions import NotFound, BadRequest
 import pickle
@@ -20,11 +20,16 @@ def connect_db():
 
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(jsonify({'error': error.get_description()}), 404)
+    return make_response(render_template('error404.html', url_home=url_for('home', _external=True)), 404)
 
 @app.errorhandler(400)
 def bad_request(error):
     return make_response(jsonify({'error': error.get_description()}), 400)
+
+@app.route('/', methods = ['GET'])
+def home():
+    return redirect(url_for('static', filename='index.html'))
+
 
 @app.route('/game', methods = ['POST'])
 def create_game():
