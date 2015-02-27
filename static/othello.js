@@ -39,7 +39,7 @@ function OthelloModelView() {
     self.gameComplete = ko.observable(false);
 
     //Message and warning info
-    var defaultMsgText = 'To save a game and return to it latter just bookmark the page.  Should you wish to amend a move (or two) use the browser back button.';
+    var defaultMsgText = 'To save a game and return to it later just bookmark the page.  Should you wish to amend a move (or two) use the browser back button.';
     var defaultMsgClass = 'alert alert-info';
     self.msgText = ko.observable(defaultMsgText);
     self.msgClass = ko.observable(defaultMsgClass);
