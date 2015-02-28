@@ -4,10 +4,10 @@ from flask import Flask, jsonify, make_response, request, g, render_template, re
 from flask.json import loads as json_loads
 from werkzeug.exceptions import NotFound, BadRequest
 import pickle
-from othello import GameCompleteError, InvalidMoveError, NoAvailablePlayError
+from othello.othello import GameCompleteError, InvalidMoveError, NoAvailablePlayError
 app = Flask(__name__)
 
-import othello_model
+import othello.othello_model as othello_model
 
 app.config.from_pyfile('config.cfg')
 
@@ -88,7 +88,3 @@ def get_game(game_id, move_id):
     except othello_model.GameNotFoundError:
         raise NotFound('Game not found.')
     return jsonify(game.get_jsonable_object())
-
-    
-if __name__ == "__main__":
-    app.run()

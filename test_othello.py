@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-from othello import OthelloBoardClass, InvalidMoveError
+from othello.othello import OthelloBoardClass, InvalidMoveError
 from copy import deepcopy
 import unittest
         

@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
-import othello_restapi
-import othello_model
-import othello
+import othello.othello_restapi as othello_restapi
+import othello.othello_model as othello_model
+import othello.othello as othello
 import unittest
 import mysql.connector
 import pickle

@@ -1,8 +1,8 @@
 import pickle
 import mysql.connector
-import othello
-from othello import GameCompleteError, InvalidMoveError, NoAvailablePlayError
-from othello_restapi import app
+import othello.othello as othello
+from othello.othello import GameCompleteError, InvalidMoveError, NoAvailablePlayError
+from othello.othello_restapi import app
 from random import randint
 from flask import url_for
 

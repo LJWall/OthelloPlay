@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
-import othello_restapi
-import othello_model
+import othello.othello_restapi as othello_restapi
+import othello.othello_model as othello_model
 import unittest
 from flask.json import loads as json_loads, dumps as json_dumps
 from flask import url_for
