@@ -2,20 +2,6 @@
 from othello.othello import OthelloBoardClass, GameCompleteError, InvalidMoveError, NoAvailablePlayError
 from othello.ml.strategies import strategies
 
-from othello.ml.features import features, get_game_features
-
-game = OthelloBoardClass(6)
-for i in range(5):
-    game.auto_play_move()
-print(game)
-f = sorted(list(features.keys()))
-print(f)
-print(get_game_features(game, f))
-
-
-
-quit()
-
 player = {'X': 'best_score',
           'O': 'best_score'}
 
