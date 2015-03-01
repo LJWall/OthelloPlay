@@ -1,20 +1,13 @@
-import sys
-from os.path import abspath
-
-path = abspath('./..')
-if path not in sys.path:
-    sys.path.append(path)
-
 import random
 from othello.othello import OthelloBoardClass, GameCompleteError, InvalidMoveError, NoAvailablePlayError
 
 # Used to provide a dictionary of strategy functions
-class StrategiesDict(dict):
+class FunctionDict(dict):
     def register(self, name):
         def assign_func_name(func):
             self[name] = func
         return assign_func_name
-strategies = StrategiesDict()
+strategies = FunctionDict()
             
 @strategies.register('random')
 def random_strategy(game):

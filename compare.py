@@ -1,19 +1,27 @@
-import sys
-from os.path import abspath
-
-path = abspath('./..')
-if path not in sys.path:
-    sys.path.append(path)
-    
+#! /usr/bin/env python3
 from othello.othello import OthelloBoardClass, GameCompleteError, InvalidMoveError, NoAvailablePlayError
-from strategies import strategies
+from othello.ml.strategies import strategies
+
+from othello.ml.features import features, get_game_features
+
+game = OthelloBoardClass(6)
+for i in range(5):
+    game.auto_play_move()
+print(game)
+f = sorted(list(features.keys()))
+print(f)
+print(get_game_features(game, f))
+
+
+
+quit()
 
 player = {'X': 'best_score',
           'O': 'best_score'}
 
 win_count = {'X': 0, 'O': 0, 'draw': 0}
 
-for x in range(100):
+for x in range(10):
     game = OthelloBoardClass(6)
     while not game.game_complete:
         strategies[player[game.current_turn]](game)
