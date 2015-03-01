@@ -5,8 +5,8 @@ import sklearn.cluster as cluster
 import pickle
 
 store_results = ''
-load_results = 'data6.pickle'
-
+load_results = 'raw_data6.pickle'
+cluster_results = 'cluster_data6.pickle'
 
 def generate_data(N_games, game_size, features, record_points):
     player = {'X': 'random',
@@ -50,5 +50,10 @@ for i in range(len(data_clust.cluster_centers_)):
     prediction_value[-1] /= sum([1 for j in cluster_index if j==i])
 for i in range(len(data_clust.cluster_centers_)):
     print(str(data_clust.cluster_centers_[i]) + ' :: ' + str(prediction_value[i]))
+
+# Store the results
+with open(cluster_results, mode='wb') as F:
+    pickle.dump({'cluster_value': prediction_value, 'model_object': data_clust, 'features': ['norm_X_score', 'game_progress', 'safe_X', 'safe_O']}, F)
+
 
 

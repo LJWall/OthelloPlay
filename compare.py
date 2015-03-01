@@ -2,12 +2,12 @@
 from othello.othello import OthelloBoardClass, GameCompleteError, InvalidMoveError, NoAvailablePlayError
 from othello.ml.strategies import strategies
 
-player = {'X': 'best_score',
+player = {'X': 'immediate_cluster',
           'O': 'best_score'}
 
 win_count = {'X': 0, 'O': 0, 'draw': 0}
 
-for x in range(10):
+for x in range(100):
     game = OthelloBoardClass(6)
     while not game.game_complete:
         strategies[player[game.current_turn]](game)
