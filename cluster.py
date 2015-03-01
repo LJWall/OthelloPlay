@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
-from othello.othello import OthelloBoardClass #, GameCompleteError, InvalidMoveError, NoAvailablePlayError
+from othello.othello import OthelloBoardClass
 from othello.ml.strategies import strategies
-#from othello.ml.features import features, get_game_features
-#import matplotlib.pyplot as plt
 import sklearn.cluster as cluster
 import pickle
 
@@ -52,23 +50,5 @@ for i in range(len(data_clust.cluster_centers_)):
     prediction_value[-1] /= sum([1 for j in cluster_index if j==i])
 for i in range(len(data_clust.cluster_centers_)):
     print(str(data_clust.cluster_centers_[i]) + ' :: ' + str(prediction_value[i]))
-
-quit()
-
-# produce plots
-#for i in range(5):
-#    x1 = [2*dp[0][0] - dp[0][1] for dp in results if round(dp[0][1]*36)==store_pts[i]] # Black lead at 3/4 point
-#    x2 = [dp[0][2] - dp[0][3] for dp in results if round(dp[0][1]*36)==store_pts[i]] # Black lead in "safe points"
-#    y = [2*dp[1][0] - dp[1][1] for dp in results if round(dp[0][1]*36)==store_pts[i]] # Black lead at end
-#    plt.figure(2*i+1)
-#    plt.title('Lead at end vs lead at ' + str(store_pts[i]))
-#    plt.plot(x1, y, 'ro')
-#    plt.axis([min(x1)-0.05, max(x1)+0.05, min(y)-0.05, max(y)+0.05])
-#    plt.figure(2*i+2)
-#    plt.title('Lead at end vs lead in "safe points" at ' + str(store_pts[i]))
-#    plt.plot(x2, y, 'ro')
-#    plt.axis([min(x2)-0.05, max(x2)+0.05, min(y)-0.05, max(y)+0.05])
-#plt.show()
-
 
 
