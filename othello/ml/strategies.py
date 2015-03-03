@@ -43,8 +43,30 @@ def best_score_strategy(game):
         raise GameCompleteError
     play_results = game.get_plays(simple=True)
     if len(play_results):
-        max_flips = max([play_results[x] for x in play_results])
+        max_flips = max(play_results[x] for x in play_results)
         plays = [key for key in play_results if play_results[key]==max_flips]
+        i = random.randint(0, len(plays)-1)
+        game.play_move(*plays[i])
+    else:
+        raise NoAvailablePlayError
+
+@strategies.register('Best score (2)')    
+def best_score_strategy(game):
+    """Plays the move that minimises blacks maxiimum score following one additional play."""
+    if game.game_complete:
+        raise GameCompleteError
+    play_results = game.get_plays(simple=False)
+    if len(play_results):
+        for play in play_results:
+            if play_results[play].game_complete:
+                play_results[play].rank = play_results[play].score()['X' if game.current_turn=='O' else 'O']
+            elif play_results[play].current_turn == game.current_turn:
+                play_results[play].rank = play_results[play].score()['X' if game.current_turn=='O' else 'O']
+            else:
+                scores = play_results[play].get_plays(simple=True)
+                play_results[play].rank = max(scores[play2] for play2 in scores)
+        lowest_opposing_score = min(play_results[play].rank for play in play_results)
+        plays = [key for key in play_results if play_results[key].rank==lowest_opposing_score]
         i = random.randint(0, len(plays)-1)
         game.play_move(*plays[i])
     else:
