@@ -60,12 +60,19 @@ def play_move(game_id, move_id):
         raise NotFound('Game not found.')
     # Attempt to interpret and carry out the request
     try:
-        play = json_loads(request.data)['play']
+        data = json_loads(request.data)
+        play = data['play']
     except BaseException:
         raise BadRequest('Unable to interpret request')
     if play == 'auto':
         try:
-            game.auto_play_move()
+            strategy_name = data['strategy']
+        except BaseException:
+            raise BadRequest('Unable to interpret request')
+        if strategy_name not in strategies:
+            raise BadRequest('Unknown strategy')
+        try:
+            strategies[strategy_name](game)
         except NoAvailablePlayError:
             raise BadRequest('No available plays')
         except GameCompleteError:

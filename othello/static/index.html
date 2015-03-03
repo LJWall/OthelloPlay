@@ -30,6 +30,29 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="autoAlgorithm" tabindex="-1" role="dialog" aria-labelledby="autoAlgorithm" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h4 class="modal-title" id="autoAlgorithmLabel">Select algorithm for white</h4>
+                    </div>
+                    <div class="modal-body">
+                        <!-- ko if algorithms().length > 0  -->
+                        <!-- ko foreach: { data: algorithms, as: 'algorithm' } -->
+                            <div class="button-group margin-top-xxs">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" data-bind="click: function() {$root.chosen_algorithm(algorithm.name)}"><span data-bind="text: algorithm.name"></span></button>
+                            <span data-bind="text: algorithm.description"></span>
+                            </div>
+                        <!-- /ko -->
+                        <!-- /ko -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <div id="main" class="container">
             <div class="page-header">
@@ -37,11 +60,14 @@
             </div>
             <div class="row">
                 <div class="col-sm-4">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newGame">
+                    <button type="button" class="btn btn-primary margin-top-xxs" data-toggle="modal" data-target="#newGame">
                         New game
                     </button>
-                    <button type="button" class="btn btn-primary" data-bind="event: {mouseover: function() {showPlays(true)}, mouseout: function() {showPlays(false)}}">
+                    <button type="button" class="btn btn-primary margin-top-xxs" data-bind="event: {mouseover: function() {showPlays(true)}, mouseout: function() {showPlays(false)}}">
                         <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> Show moves
+                    </button>
+                    <button type="button" class="btn btn-primary margin-top-xxs" data-toggle="modal" data-target="#autoAlgorithm">
+                        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> <span data-bind="text: chosen_algorithm"></span>
                     </button>
                     <div class="panel panel-primary margin-top-l">
                         <div class="panel-heading">

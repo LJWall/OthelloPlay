@@ -6,6 +6,12 @@ function boardItem(status, x, y) {
     self.mouseOver = ko.observable(false);
 };
 
+function algorithm(name, description, sizes) {
+    self = this;
+    self.name = name;
+    self.description = description;
+    self.sizes = sizes;
+};
 
 
 function OthelloModelView() {
@@ -47,7 +53,9 @@ function OthelloModelView() {
     
     // New game option
     self.boardSizeOptions = [{size: 6, text: '6 x 6'}, {size: 8, text: '8 x 8'}, {size: 10, text: '10 x 10 (for the committed)'}];
-    //self.newGameSize = ko.observable(self.boardSizeOptions[1]);
+    // Algorithm options
+    self.algorithms = ko.observableArray();
+    self.chosen_algorithm = ko.observable('Loading...');
     
     self.turnText = ko.computed(function() {
         if (self.gameState() == self.GameStateEnum.NoGame) {
@@ -69,7 +77,7 @@ function OthelloModelView() {
         if (data['current_turn']=='O' && !data['game_complete']) {
             self.gameState(self.GameStateEnum.WaitingServerResponse);
             $.ajax(data.URIs.play, {
-                    data: ko.toJSON({play: 'auto'}),
+                    data: ko.toJSON({play: 'auto', strategy: self.chosen_algorithm()}),
                     type: "post", contentType: "application/json",
                     success: self.processResponse
                 });
@@ -193,6 +201,19 @@ function OthelloModelView() {
             });
         });
     sammyApp.run();
+    
+    self.loadAlgorithms = function(data) {
+        for (func_name in data) {
+            if (data.hasOwnProperty(func_name)) {
+                self.algorithms.push(new algorithm(func_name, data[func_name].desc, data[func_name].sizes));
+                if (data[func_name].order==0) {
+                    self.chosen_algorithm(func_name);
+                }
+            }
+        }
+    };
+    $.getJSON('/game', self.loadAlgorithms);
+    
     
 }
 
