@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 import othello.othello_restapi as othello_restapi
 import othello.othello_model as othello_model
+from othello.ml.strategies import strategies
 import unittest
 from flask.json import loads as json_loads, dumps as json_dumps
 from flask import url_for
@@ -49,7 +50,12 @@ class OthelloRestAPITestCase(unittest.TestCase):
     def test_get_game_bad_id_gives_404(self):
         response = self.app.get('/game/NoSuchGame/0')
         self.assertEqual(response.status_code, 404)
-        
+    
+    def test_get__api_root(self):
+        response = self.app.get('/game')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['Content-Type'], 'application/json')
+        self.assertEqual(json_loads(response.data), strategies.get_jsonable_object())
         
     def test_game_post_play_move(self):
         game = othello_model.OthelloBoardModel(6)

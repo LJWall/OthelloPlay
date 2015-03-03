@@ -3,6 +3,7 @@
 from flask import Flask, jsonify, make_response, request, g, render_template, redirect, url_for
 from flask.json import loads as json_loads
 from werkzeug.exceptions import NotFound, BadRequest
+from othello.ml.strategies import strategies
 import pickle
 from othello.othello import GameCompleteError, InvalidMoveError, NoAvailablePlayError
 app = Flask(__name__)
@@ -29,6 +30,11 @@ def bad_request(error):
 @app.route('/', methods = ['GET'])
 def home():
     return redirect(url_for('static', filename='index.html'))
+
+@app.route('/game', methods = ['GET'])
+def start_info():
+    response = jsonify(strategies.get_jsonable_object())
+    return response
 
 
 @app.route('/game', methods = ['POST'])

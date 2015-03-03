@@ -18,8 +18,9 @@ class FunctionDict(dict):
         ret_dict = {func_name: {'order': self[func_name].order,
                                 'desc': self[func_name].__doc__} for func_name in self}
         for func_name in self:
-            if self[x].sizes is not None:
-                ret_dict[func_name]['sizes'] = self[x].sizes
+            if self[func_name].sizes is not None:
+                ret_dict[func_name]['sizes'] = self[func_name].sizes
+        return ret_dict
 strategies = FunctionDict()
             
 @strategies.register('Random')
