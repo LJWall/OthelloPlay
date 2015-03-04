@@ -38,7 +38,7 @@ def safe_pieces(game, piece_type):
     while True:
         for spot in piece_set:
             safe_plus = border_set.union(safe_set)
-            if and_it([(tuple_offset(spot, d) in safe_plus) or (tuple_offset(spot, d, -1) in safe_plus) for d in directions]):
+            if and_it((tuple_offset(spot, d) in safe_plus) or (tuple_offset(spot, d, -1) in safe_plus) for d in directions):
                 safe_set.add(spot)
         if len(safe_set) == num:
             break

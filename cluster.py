@@ -53,7 +53,11 @@ for i in range(len(data_clust.cluster_centers_)):
 
 # Store the results
 with open(cluster_results, mode='wb') as F:
-    pickle.dump({'cluster_value': prediction_value, 'model_object': data_clust, 'features': ['norm_X_score', 'game_progress', 'safe_X', 'safe_O']}, F)
+    pickle.dump({'cluster_value': prediction_value,
+                 'model_object': data_clust,
+                 'features': ['norm_X_score', 'game_progress', 'safe_X', 'safe_O'],
+                 'sign': {'X': 1, 'O': -1}}, # indicated that for X greater value is better, for O the converse.
+                F)  
 
 
 

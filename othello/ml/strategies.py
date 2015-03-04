@@ -22,55 +22,31 @@ class FunctionDict(dict):
                 ret_dict[func_name]['sizes'] = self[func_name].sizes
         return ret_dict
 strategies = FunctionDict()
-            
-@strategies.register('Random')
-def random_strategy(game):
-    """Plays a move at random."""
-    if game.game_complete:
-        raise GameCompleteError
-    play_results = game.get_plays(simple=True)
-    if len(play_results):
-        i = random.randint(0, len(play_results)-1)
-        play = sorted(play_results.keys())[i]
-        game.play_move(*play)
-    else:
-        raise NoAvailablePlayError
 
-@strategies.register('Best score')    
-def best_score_strategy(game):
-    """Plays the move that gives the best immediate score."""
-    if game.game_complete:
-        raise GameCompleteError
-    play_results = game.get_plays(simple=True)
-    if len(play_results):
-        max_flips = max(play_results[x] for x in play_results)
-        plays = [key for key in play_results if play_results[key]==max_flips]
-        i = random.randint(0, len(plays)-1)
-        game.play_move(*plays[i])
-    else:
-        raise NoAvailablePlayError
-
-@strategies.register('Best score (2)')    
-def best_score_strategy(game):
-    """Plays the move that minimises blacks maxiimum score following one additional play."""
+def generic_strategy_simple(game, rank):
+    """Takes a game an plays move which gives the best score according to passed in
+    rank function (which should accept a game object).  Assumes bigger number = better"""
     if game.game_complete:
         raise GameCompleteError
     play_results = game.get_plays(simple=False)
     if len(play_results):
-        for play in play_results:
-            if play_results[play].game_complete:
-                play_results[play].rank = play_results[play].score()['X' if game.current_turn=='O' else 'O']
-            elif play_results[play].current_turn == game.current_turn:
-                play_results[play].rank = play_results[play].score()['X' if game.current_turn=='O' else 'O']
-            else:
-                scores = play_results[play].get_plays(simple=True)
-                play_results[play].rank = max(scores[play2] for play2 in scores)
-        lowest_opposing_score = min(play_results[play].rank for play in play_results)
-        plays = [key for key in play_results if play_results[key].rank==lowest_opposing_score]
+        best = max(rank(play_results[x]) for x in play_results)
+        plays = [play for play in play_results if rank(play_results[play])==best]
         i = random.randint(0, len(plays)-1)
         game.play_move(*plays[i])
     else:
         raise NoAvailablePlayError
+    
+    
+@strategies.register('Random')
+def random_strategy(game):
+    """Plays a move at random."""
+    generic_strategy_simple(game, lambda x: 1)
+
+@strategies.register('Best score')    
+def best_score_strategy(game):
+    """Plays the move that gives the best immediate score."""
+    generic_strategy_simple(game, lambda x: x.score()[game.current_turn])
 
 @strategies.register('Basic cluster', [6])
 def immediate_cluster(game):
@@ -78,20 +54,51 @@ def immediate_cluster(game):
     if not getattr(immediate_cluster, 'data', None):
         with open('cluster_data6.pickle', mode='rb') as F:
             immediate_cluster.data = pickle.load(F)
-    play_results = game.get_plays()
+    cluster = immediate_cluster.data
+    def rank(g):
+        feature_vect = get_game_features(g, cluster['features'])
+        cluster_index = cluster['model_object'].predict([feature_vect])
+        return cluster['sign'][game.current_turn]*cluster['cluster_value'][cluster_index]
+    generic_strategy_simple(game, rank)
+
+def generic_strategy_look_ahead(game, rank):
+    """Plays the move that maximises the rank, assuming the opponents following
+    move minimises the rank."""
+    if game.game_complete:
+        raise GameCompleteError
+    play_results = game.get_plays(simple=False)
     if len(play_results):
-        for p in play_results:
-            feature_vect = get_game_features(play_results[p], immediate_cluster.data['features'])
-            cluster_index = immediate_cluster.data['model_object'].predict([feature_vect])
-            play_results[p].cluster_rank = immediate_cluster.data['cluster_value'][cluster_index]
-        if game.current_turn == 'X':
-            play = max(play_results, key=(lambda p: play_results[p].cluster_rank))
-        else:
-            play = min(play_results, key=(lambda p: play_results[p].cluster_rank))
-        game.play_move(*play)
+        for play in play_results:
+            if play_results[play].game_complete or (play_results[play].current_turn == game.current_turn):
+                play_results[play].rank = rank(play_results[play])
+            else:
+                follow_ups = play_results[play].get_plays(simple=False)
+                play_results[play].rank = min(rank(follow_ups[play2]) for play2 in follow_ups)
+        best = max(play_results[play].rank for play in play_results)    
+        plays = [play for play in play_results if play_results[play].rank==best]
+        i = random.randint(0, len(plays)-1)
+        game.play_move(*plays[i])
     else:
         raise NoAvailablePlayError
+    
 
+@strategies.register('Best score (2)')    
+def best_score_strategy_2(game):
+    """Plays the move that minimises the opponent's maximum score following one additional play."""
+    generic_strategy_look_ahead(game, lambda x: x.score()[game.current_turn])
+
+@strategies.register('Basic cluster (2)')    
+def cluster_strategy_2(game):
+    """Plays the move that minimises the opponents best ranking (based on cluster data) following one additional play."""
+    if not getattr(immediate_cluster, 'data', None):
+        with open('cluster_data6.pickle', mode='rb') as F:
+            immediate_cluster.data = pickle.load(F)
+    cluster = immediate_cluster.data
+    def rank(g):
+        feature_vect = get_game_features(g, cluster['features'])
+        cluster_index = cluster['model_object'].predict([feature_vect])
+        return cluster['sign'][game.current_turn]*cluster['cluster_value'][cluster_index]
+    generic_strategy_look_ahead(game, rank)
 
 if __name__ == '__main__':
     print(strategies)
