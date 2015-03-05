@@ -100,20 +100,23 @@ class OthelloBoardModel(othello.OthelloBoardClass):
             raise GameNotStoredError
         return url_for('play_move', game_id=self.game_key, move_id=self.move_id, _external=False)
     
-    def get_jsonable_object(self):
+    def get_jsonable_object(self, shallow=False):
         game_dict = dict()
         game_dict['board'] = []
         for x in range(self.size):
             game_dict['board'].append(['']*self.size)
         for key in self:
             game_dict['board'][key[0]][key[1]] = self[key]
-        for play in self.get_plays().keys():
-            game_dict['board'][play[0]][play[1]] = 'P'
         game_dict['current_turn'] = self.current_turn
         game_dict['game_complete'] = self.game_complete
-        game_dict['URIs'] = {'get': self.get_uri()}
-        if not self.game_complete:
-            game_dict['URIs']['play'] = self.post_uri()
+        if not shallow:
+            play_results = self.get_plays(simple=False)
+            for play in play_results:
+                game_dict['board'][play[0]][play[1]] = 'P'
+            game_dict['playresults'] = {str(play): play_results[play].get_jsonable_object(shallow=True) for play in play_results}
+            game_dict['URIs'] = {'get': self.get_uri()}
+            if not self.game_complete:
+                game_dict['URIs']['play'] = self.post_uri()
         return game_dict
         
     
