@@ -86,12 +86,13 @@ function OthelloModelView() {
         }
         self.current_turn(data.current_turn);
         self.boardSize(data.board.length);
-        self.board.removeAll(data.board.length);
+        var tmp_board = []
         for (i=0; i<data.board.length; i++) {
             for (j=0; j<data.board.length; j++) {
-                self.board.push(new boardItem(data.board[i][j], i, j));
+                tmp_board.push(new boardItem(data.board[i][j], i, j));
             }
         }
+        self.board(tmp_board);
         self.pieceSize(500/data.board.length);
         blackScore=0;
         whiteScore=0;
@@ -159,7 +160,7 @@ function OthelloModelView() {
             if (b_item.status()=='P') {
                 self.msgText(defaultMsgText);
                 self.msgClass(defaultMsgClass);
-                self.loadResponse(playresults['(' + b_item.x() + ', ' + b_item.y() + ')'])
+                self.loadResponse(playresults['(' + b_item.x() + ', ' + b_item.y() + ')']);
                 self.gameState(self.GameStateEnum.WaitingServerResponse);
                 $.ajax(URIs.play, {
                     data: ko.toJSON({play: [b_item.x(), b_item.y()]}),
