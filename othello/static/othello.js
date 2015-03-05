@@ -11,6 +11,7 @@ function boardItem(status, x, y) {
 function OthelloModelView() {
     var self = this;
     var URIs;
+    var playresults;
     
     self.GameStateEnum = {
         NoGame: 0,
@@ -77,7 +78,12 @@ function OthelloModelView() {
     
     
     self.loadResponse = function(data) {
-        URIs = data.URIs;
+        if (data.hasOwnProperty('URIs')) {
+            URIs = data.URIs;
+        }
+        if (data.hasOwnProperty('playresults')) {
+            playresults = data.playresults;
+        }
         self.current_turn(data.current_turn);
         self.boardSize(data.board.length);
         self.board.removeAll(data.board.length);
@@ -153,6 +159,7 @@ function OthelloModelView() {
             if (b_item.status()=='P') {
                 self.msgText(defaultMsgText);
                 self.msgClass(defaultMsgClass);
+                self.loadResponse(playresults['(' + b_item.x() + ', ' + b_item.y() + ')'])
                 self.gameState(self.GameStateEnum.WaitingServerResponse);
                 $.ajax(URIs.play, {
                     data: ko.toJSON({play: [b_item.x(), b_item.y()]}),
