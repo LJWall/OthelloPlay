@@ -2,6 +2,10 @@ import random
 import pickle
 from othello.othello import OthelloBoardClass, GameCompleteError, InvalidMoveError, NoAvailablePlayError
 from othello.ml.features import get_game_features
+import os
+
+thisdir = os.path.dirname(os.path.realpath(__file__))
+
 
 # Used to provide a dictionary of strategy functions
 class FunctionDict(dict):
@@ -41,7 +45,7 @@ def generic_strategy_simple(game, rank):
 def basic_NN(game):
     """Simple neural net used for ranking a board based on four key features."""
     if not getattr(basic_NN, 'net', None):
-        with open('nn6-simple2.pickle.it3', mode='rb') as F:
+        with open(thisdir + '/nn6-simple2.pickle.it3', mode='rb') as F:
             basic_NN.net = pickle.load(F)
     net = basic_NN.net
     def rank(g):
@@ -64,7 +68,7 @@ def best_score_strategy(game):
 def immediate_cluster(game):
     """Play the move that gives the best rank according to game state cluster data."""
     if not getattr(immediate_cluster, 'data', None):
-        with open('cluster_data6.pickle', mode='rb') as F:
+        with open(thisdir + '/cluster_data6.pickle', mode='rb') as F:
             immediate_cluster.data = pickle.load(F)
     cluster = immediate_cluster.data
     def rank(g):
@@ -97,7 +101,7 @@ def generic_strategy_look_ahead(game, rank):
 def look_ahead_NN(game):
     """Simple neural net used for ranking a board based on four key features; looks ahead as far as opponent's response."""
     if not getattr(look_ahead_NN, 'net', None):
-        with open('nn6-simple2.pickle.it3', mode='rb') as F:
+        with open(thisdir + '/nn6-simple2.pickle.it3', mode='rb') as F:
             look_ahead_NN.net = pickle.load(F)
     net = look_ahead_NN.net
     def rank(g):
@@ -117,7 +121,7 @@ def best_score_strategy_2(game):
 def cluster_strategy_2(game):
     """Plays the move that minimises the opponents best ranking (based on cluster data) following one additional play."""
     if not getattr(cluster_strategy_2, 'data', None):
-        with open('cluster_data6.pickle', mode='rb') as F:
+        with open(thisdir + '/cluster_data6.pickle', mode='rb') as F:
             cluster_strategy_2.data = pickle.load(F)
     cluster = cluster_strategy_2.data
     def rank(g):
