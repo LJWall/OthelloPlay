@@ -9,21 +9,17 @@ thisdir = os.path.dirname(os.path.realpath(__file__))
 
 # Used to provide a dictionary of strategy functions
 class FunctionDict(dict):
-    def register(self, name, sizes = None):
+    def register(self, name):
         if name in self:
             raise UserWarning # warn on replacment
         def assign_func_name(func):
             func.order = len(self)
-            func.sizes  = sizes
             self[name] = func
             return func
         return assign_func_name
     def get_jsonable_object(self):
         ret_dict = {func_name: {'order': self[func_name].order,
                                 'desc': self[func_name].__doc__} for func_name in self}
-        for func_name in self:
-            if self[func_name].sizes is not None:
-                ret_dict[func_name]['sizes'] = self[func_name].sizes
         return ret_dict
 strategies = FunctionDict()
 
@@ -64,7 +60,7 @@ def best_score_strategy(game):
     """Plays the move that gives the best immediate score."""
     generic_strategy_simple(game, lambda x: x.score()[game.current_turn])
 
-@strategies.register('Basic cluster', [6])
+@strategies.register('Basic cluster')
 def immediate_cluster(game):
     """Play the move that gives the best rank according to game state cluster data."""
     if not getattr(immediate_cluster, 'data', None):
@@ -117,7 +113,7 @@ def best_score_strategy_2(game):
     """Plays the move that minimises the opponent's maximum score following one additional play."""
     generic_strategy_look_ahead(game, lambda x: x.score()[game.current_turn])
 
-@strategies.register('Basic cluster (2)', [6])    
+@strategies.register('Basic cluster (2)')    
 def cluster_strategy_2(game):
     """Plays the move that minimises the opponents best ranking (based on cluster data) following one additional play."""
     if not getattr(cluster_strategy_2, 'data', None):
