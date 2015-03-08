@@ -1,4 +1,9 @@
 #! /usr/bin/env python3
+import os
+import sys
+if os.path.abspath('../') not in sys.path:
+    sys.path.append(os.path.abspath('../'))
+
 from othello.othello import OthelloBoardClass
 from othello.ml.strategies import strategies
 import sklearn.cluster as cluster

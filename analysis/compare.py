@@ -1,4 +1,10 @@
 #! /usr/bin/env python3
+
+import os
+import sys
+if os.path.abspath('../') not in sys.path:
+    sys.path.append(os.path.abspath('../'))
+
 from othello.othello import OthelloBoardClass, GameCompleteError, InvalidMoveError, NoAvailablePlayError
 from othello.ml.strategies import strategies
 
