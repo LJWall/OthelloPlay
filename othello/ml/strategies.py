@@ -36,7 +36,19 @@ def generic_strategy_simple(game, rank):
         game.play_move(*plays[i])
     else:
         raise NoAvailablePlayError
-    
+
+@strategies.register('Neural net')
+def basic_NN(game):
+    """Simple neural net used for ranking a board based on four key features."""
+    if not getattr(basic_NN, 'net', None):
+        with open('nn6-simple2.pickle.it3', mode='rb') as F:
+            basic_NN.net = pickle.load(F)
+    net = basic_NN.net
+    def rank(g):
+        player = g.current_turn
+        features = get_game_features(g, ['game_progress', 'norm_' + player + '_score', 'safe_' + player, 'corners_' + player])
+        return net.activate(features)[0]
+    generic_strategy_simple(game, rank)
     
 @strategies.register('Random')
 def random_strategy(game):
@@ -80,7 +92,21 @@ def generic_strategy_look_ahead(game, rank):
         game.play_move(*plays[i])
     else:
         raise NoAvailablePlayError
-    
+
+@strategies.register('Neural net (2)')
+def look_ahead_NN(game):
+    """Simple neural net used for ranking a board based on four key features; looks ahead as far as opponent's response."""
+    if not getattr(look_ahead_NN, 'net', None):
+        with open('nn6-simple2.pickle.it3', mode='rb') as F:
+            look_ahead_NN.net = pickle.load(F)
+    net = look_ahead_NN.net
+    def rank(g):
+        player = g.current_turn
+        features = get_game_features(g, ['game_progress', 'norm_' + player + '_score', 'safe_' + player, 'corners_' + player])
+        player_opp = 'X' if player=='O' else 'O'
+        features_opp = get_game_features(g, ['game_progress', 'norm_' + player_opp + '_score', 'safe_' + player_opp, 'corners_' + player_opp])
+        return net.activate(features)[0] - net.activate(features_opp)[0]
+    generic_strategy_look_ahead(game, rank)  
 
 @strategies.register('Best score (2)')    
 def best_score_strategy_2(game):
@@ -90,10 +116,10 @@ def best_score_strategy_2(game):
 @strategies.register('Basic cluster (2)')    
 def cluster_strategy_2(game):
     """Plays the move that minimises the opponents best ranking (based on cluster data) following one additional play."""
-    if not getattr(immediate_cluster, 'data', None):
+    if not getattr(cluster_strategy_2, 'data', None):
         with open('cluster_data6.pickle', mode='rb') as F:
-            immediate_cluster.data = pickle.load(F)
-    cluster = immediate_cluster.data
+            cluster_strategy_2.data = pickle.load(F)
+    cluster = cluster_strategy_2.data
     def rank(g):
         feature_vect = get_game_features(g, cluster['features'])
         cluster_index = cluster['model_object'].predict([feature_vect])
