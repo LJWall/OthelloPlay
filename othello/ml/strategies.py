@@ -9,17 +9,18 @@ thisdir = os.path.dirname(os.path.realpath(__file__))
 
 # Used to provide a dictionary of strategy functions
 class FunctionDict(dict):
-    def register(self, name):
-        if name in self:
-            raise UserWarning # warn on replacment
+    def register(self, name, good=True):
         def assign_func_name(func):
             func.order = len(self)
-            self[name] = func
+            func.good = good
+            func.nice_name = name
+            self[func.__name__] = func
             return func
         return assign_func_name
-    def get_jsonable_object(self):
+    def get_jsonable_object(self, use_all=False):
         ret_dict = {func_name: {'order': self[func_name].order,
-                                'desc': self[func_name].__doc__} for func_name in self}
+                                'nice_name':  self[func_name].nice_name,
+                                'desc': self[func_name].__doc__} for func_name in self if use_all or self[func_name].good}
         return ret_dict
 strategies = FunctionDict()
 
@@ -37,7 +38,7 @@ def generic_strategy_simple(game, rank):
     else:
         raise NoAvailablePlayError
 
-@strategies.register('Neural net')
+@strategies.register('Neural net', False)
 def basic_NN(game):
     """Simple neural net used for ranking a board based on four key features."""
     if not getattr(basic_NN, 'net', None):
@@ -55,12 +56,12 @@ def random_strategy(game):
     """Plays a move at random."""
     generic_strategy_simple(game, lambda x: 1)
 
-@strategies.register('Best score')    
+@strategies.register('Best score', False)
 def best_score_strategy(game):
     """Plays the move that gives the best immediate score."""
     generic_strategy_simple(game, lambda x: x.score()[game.current_turn])
 
-@strategies.register('Basic cluster')
+@strategies.register('Cluster', False)
 def immediate_cluster(game):
     """Play the move that gives the best rank according to game state cluster data."""
     if not getattr(immediate_cluster, 'data', None):
@@ -93,9 +94,9 @@ def generic_strategy_look_ahead(game, rank):
     else:
         raise NoAvailablePlayError
 
-@strategies.register('Neural net (2)')
+@strategies.register('Neural net')
 def look_ahead_NN(game):
-    """Simple neural net used for ranking a board based on four key features; looks ahead as far as opponent's response."""
+    """Simple neural net for ranking based on four key features. Looks two moves ahead."""
     if not getattr(look_ahead_NN, 'net', None):
         with open(thisdir + '/nn6-simple2.pickle.it3', mode='rb') as F:
             look_ahead_NN.net = pickle.load(F)
@@ -108,14 +109,14 @@ def look_ahead_NN(game):
         return net.activate(features)[0] - net.activate(features_opp)[0]
     generic_strategy_look_ahead(game, rank)  
 
-@strategies.register('Best score (2)')    
+@strategies.register('Best score')    
 def best_score_strategy_2(game):
-    """Plays the move that minimises the opponent's maximum score following one additional play."""
+    """Based solely on score.  Looks two moves ahead."""
     generic_strategy_look_ahead(game, lambda x: x.score()[game.current_turn])
 
-@strategies.register('Basic cluster (2)')    
+@strategies.register('Cluster')
 def cluster_strategy_2(game):
-    """Plays the move that minimises the opponents best ranking (based on cluster data) following one additional play."""
+    """Based on cluster analysis on four key features.  Looks two moves ahead."""
     if not getattr(cluster_strategy_2, 'data', None):
         with open(thisdir + '/cluster_data6.pickle', mode='rb') as F:
             cluster_strategy_2.data = pickle.load(F)

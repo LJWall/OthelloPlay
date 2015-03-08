@@ -39,12 +39,17 @@
                     </div>
                     <div class="modal-body">
                         <!-- ko if algorithms().length > 0  -->
-                        <!-- ko foreach: { data: algorithms, as: 'algorithm' } -->
-                            <div class="button-group margin-top-xxs">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" data-bind="click: function() {$root.chosen_algorithm(algorithm.name)}"><span data-bind="text: algorithm.name"></span></button>
-                            <span data-bind="text: algorithm.description"></span>
-                            </div>
-                        <!-- /ko -->
+                        <table class="table table-striped">
+                        <tbody>
+                            <!-- ko foreach: { data: algorithms, as: 'algorithm' } -->
+                            <tr>
+                                <td><strong data-bind="text: algorithm.name"></strong></td>
+                                <td><span data-bind="text: algorithm.description"></span></td>
+                                <td><button type="button" class="btn btn-primary" data-dismiss="modal" data-bind="click: function() {$root.chosen_algorithm(algorithm)}">Select</button></td>
+                            </tr>
+                            <!-- /ko -->
+                        </tbody>
+                        </table>
                         <!-- /ko -->
                     </div>
                     <div class="modal-footer">
@@ -67,7 +72,7 @@
                         <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> Show moves
                     </button>
                     <button type="button" class="btn btn-primary margin-top-xxs" data-toggle="modal" data-target="#autoAlgorithm">
-                        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> <span data-bind="text: chosen_algorithm"></span>
+                        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> <span data-bind="text: chosen_algorithm().name"></span>
                     </button>
                     <div class="panel panel-primary margin-top-l">
                         <div class="panel-heading">
