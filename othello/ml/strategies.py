@@ -117,7 +117,7 @@ def best_score_strategy_2(game):
     """Plays the move that minimises the opponent's maximum score following one additional play."""
     generic_strategy_look_ahead(game, lambda x: x.score()[game.current_turn])
 
-@strategies.register('Basic cluster (2)')    
+@strategies.register('Basic cluster (2)', [6])    
 def cluster_strategy_2(game):
     """Plays the move that minimises the opponents best ranking (based on cluster data) following one additional play."""
     if not getattr(cluster_strategy_2, 'data', None):
