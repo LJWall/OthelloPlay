@@ -65,14 +65,16 @@ def play_move(game_id, move_id):
     except BaseException:
         raise BadRequest('Unable to interpret request')
     if play == 'auto':
-        try:
+        strategy_name = None
+        if 'strategy' in data:
             strategy_name = data['strategy']
-        except BaseException:
-            raise BadRequest('Unable to interpret request')
-        if strategy_name not in strategies:
-            raise BadRequest('Unknown strategy')
+            if strategy_name not in strategies:
+                raise BadRequest('Unknown strategy')
         try:
-            strategies[strategy_name](game)
+            if strategy_name:
+                strategies[strategy_name](game)
+            else:
+                game.auto_play_move()
         except NoAvailablePlayError:
             raise BadRequest('No available plays')
         except GameCompleteError:
