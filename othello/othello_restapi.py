@@ -14,7 +14,7 @@ app.config.from_pyfile('config.cfg')
 
 @app.before_request
 def connect_db():
-    if request.method in ('POST') and request.headers['Content-Type'] != 'application/json':
+    if request.method in ('POST') and  'application/json' not in request.headers['Content-Type'].lower():
         raise BadRequest('Invlalid content type')
     if not  getattr(g, 'board_store', None):
         g.board_store = othello_model.BoardStore()
