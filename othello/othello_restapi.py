@@ -27,6 +27,10 @@ def not_found(error):
 def bad_request(error):
     return make_response(jsonify({'error': error.get_description()}), 400)
 
+@app.route('/fonts/<font_file>', methods = ['GET'])
+def font_redir(font_file):
+    return redirect(url_for('static', filename=font_file))
+
 @app.route('/', methods = ['GET'])
 def home():
     return redirect(url_for('static', filename='index.html'))

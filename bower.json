@@ -1,0 +1,22 @@
+{
+  "name": "OthelloPlay",
+  "version": "0.0.0",
+  "homepage": "https://github.com/LJWall/OthelloPlay",
+  "authors": [
+    "Liam Wall <liam.wall@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "sammy": "~0.7.6",
+    "jquery": "~2.1.3",
+    "bootstrap": "~3.3.4",
+    "knockout": "~3.3.0"
+  }
+}

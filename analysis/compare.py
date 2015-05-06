@@ -2,8 +2,8 @@
 from othello.othello import OthelloBoardClass, GameCompleteError, InvalidMoveError, NoAvailablePlayError
 from othello.ml.strategies import strategies
 
-player = {'X': 'Basic cluster',
-          'O': 'Best score'}
+player = {'X': 'depth_NN',
+          'O': 'look_ahead_NN'}
 
 win_count = {'X': 0, 'O': 0, 'draw': 0}
 

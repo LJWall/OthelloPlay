@@ -107,6 +107,17 @@ class OthelloBoardClass(dict):
                 play_results[p] = (flip_count if simple else g1)
         return play_results
     
+    def iter_plays(self, simple=False):
+        play_options = self.get_boundary();
+        for p in play_options:
+            g1 = deepcopy(self)
+            try:
+                flip_count = g1.play_move(*p, test_only=simple)
+            except InvalidMoveError:
+                pass
+            else:
+                yield p, (flip_count if simple else g1)
+        
     def auto_play_move(self):
         if self.game_complete:
             raise GameCompleteError

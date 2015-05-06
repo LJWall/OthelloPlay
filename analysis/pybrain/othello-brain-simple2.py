@@ -46,7 +46,7 @@ class OthelloStrategyEvaluator(FitnessEvaluator):
         print('.', end='', flush=True)
         ret_value = 0
         for opponent in self.opponents:
-            game = OthelloBoardClass(6)
+            game = OthelloBoardClass(8)
             while not game.game_complete:
                 if game.current_turn=='O':
                     self.play_move(game, net)
@@ -59,12 +59,12 @@ class OthelloStrategyEvaluator(FitnessEvaluator):
         return ret_value
     
 if __name__ == '__main__':
-    store_results = 'nn6-simple2.pickle'
+    store_results = 'nn8-simple2.pickle'
     plt.ion()
     net = buildNetwork(4, 4, 1)
     pm = PlotMachine()
     count = 0
-    opponents = ['Best score', 'Best score (2)']
+    opponents = ['best_score_strategy_2', 'look_ahead_NN']
     try:
         while True:
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
             count += 1
             task = OthelloStrategyEvaluator(opponents, pm)
             learn_res = StochasticHillClimber(task, net, maxEvaluations=200, desiredEvaluation=30, temperature=1.5).learn()
-            opponents.append('Random')
+            opponents.append('random_strategy')
             net = learn_res[0]
             with open(store_results + '.it' + str(count), mode='wb') as F:
                 pickle.dump(net, F)
