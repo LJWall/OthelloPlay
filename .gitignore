@@ -1,6 +1,14 @@
 *.DS_Store
 *.pickle
 
+analysis/pybrain/*.pickle.*
+bower_components
+othello/static/bootstrap.*
+othello/static/glyphicons-*
+othello/static/jquery.*
+othello/static/knockout.js
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
