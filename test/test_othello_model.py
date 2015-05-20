@@ -3,17 +3,14 @@ import othello.othello_restapi as othello_restapi
 import othello.othello_model as othello_model
 import othello.othello as othello
 import unittest
-import mysql.connector
+from pymongo import MongoClient
 import pickle
 from flask import url_for
 
 othello_restapi.app.config.update(
-    {'DATABASE_USER': 'unittester',
-    'DATABASE_PASSWORD': 'unittester',
-    'DATABASE_NAME': 'othello_unittest',
-    'DATABASE_HOST': '127.0.0.1',
-    'TESTING': True,
-    'SERVER_NAME': 'localhost'})
+    {'DATABASE_NAME': 'Othello_unittest',
+    'DATABASE_URI': 'mongodb://127.0.0.1:27017',
+    'DATABASE_COLELCTION': 'board_data'})
 
 
 
@@ -21,20 +18,17 @@ class OthelloBoardModelTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.board_store = othello_model.BoardStore()
-        cls.db_conn = mysql.connector.connect(user='unittester',
-                                            password='unittester',
-                                            database='othello_unittest',
-                                            host='127.0.0.1',
-                                            autocommit=True)
+        cls.db_conn = MongoClient('mongodb://127.0.0.1:27017')
+        cls.collection = db_conn.Othello_unittest.board_data
         
     @classmethod
     def tearDownClass(cls):
         if getattr(cls, 'db_conn', None):
-            cls.db_conn.cmd_query('DELETE FROM othello_data;')  
+            cls.collection.delete_many({})
             cls.db_conn.close()
         
     def setUp(self):
-        self.db_conn.cmd_query('DELETE FROM othello_data;')
+        self.collection.delete_many({})
     
     def test_othelolo_board_model_implments_othello_board_class(self):
         game = othello_model.OthelloBoardModel(6)
@@ -44,11 +38,9 @@ class OthelloBoardModelTest(unittest.TestCase):
     def test_board_store_saves_board(self):
         game = othello_model.OthelloBoardModel(6)
         self.board_store.save_board(game)
-        cur = self.db_conn.cursor()
-        cur.execute('SELECT game FROM othello_data;')
-        results = cur.fetchall()
-        self.assertEqual(len(results), 1)
-        storedgame = pickle.loads(results[0][0])
+        results = self.collection.find({})
+        self.assertEqual(results.count(), 1)
+        storedgame = pickle.loads(results[0]['game'])
         self.assertEqual(game, storedgame) # note - this is only checking the dictionary part
         self.assertEqual(game.game_key,storedgame.game_key)
         self.assertEqual(game.move_id,storedgame.move_id)
@@ -70,13 +62,11 @@ class OthelloBoardModelTest(unittest.TestCase):
     def test_object_key_match_db_keys(self):
         game = othello_model.OthelloBoardModel(6)
         self.board_store.save_board(game)
-        cur = self.db_conn.cursor()
-        cur.execute('SELECT game, game_key, move_id FROM othello_data;')
-        results = cur.fetchall()
-        self.assertEqual(len(results), 1)
-        storedgame = pickle.loads(results[0][0])
-        self.assertEqual(storedgame.game_key, results[0][1])
-        self.assertEqual(storedgame.move_id, results[0][2])
+        results = self.collection.find({})
+        self.assertEqual(results.count(), 1)
+        storedgame = pickle.loads(results[0]['game'])
+        self.assertEqual(storedgame.game_key, results[0]['game_key'])
+        self.assertEqual(storedgame.move_id, results[0]['move_id'])
         
     def test_playing_a_manual_move_zaps_move_id(self):
         game = othello_model.OthelloBoardModel(6)
