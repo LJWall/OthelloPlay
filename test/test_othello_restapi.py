@@ -9,12 +9,11 @@ import pickle
 
 
 othello_restapi.app.config.update(
-    {'DATABASE_USER': 'unittester',
-    'DATABASE_PASSWORD': 'unittester',
-    'DATABASE_NAME': 'othello_unittest',
-    'DATABASE_HOST': '127.0.0.1',
-    'TESTING': True,
-    'SERVER_NAME': 'localhost'})
+    {'DATABASE_NAME': 'Othello_unittest',
+    'DATABASE_URI': 'mongodb://127.0.0.1:27017',
+    'DATABASE_COLELCTION': 'board_data',
+    'SERVER_NAME': 'localhost',
+    'TESTING': True})
           
 class OthelloRestAPITestCase(unittest.TestCase):
     

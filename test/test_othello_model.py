@@ -10,7 +10,9 @@ from flask import url_for
 othello_restapi.app.config.update(
     {'DATABASE_NAME': 'Othello_unittest',
     'DATABASE_URI': 'mongodb://127.0.0.1:27017',
-    'DATABASE_COLELCTION': 'board_data'})
+    'DATABASE_COLELCTION': 'board_data',
+    'SERVER_NAME': 'localhost',
+    'TESTING': True})
 
 
 
@@ -19,7 +21,7 @@ class OthelloBoardModelTest(unittest.TestCase):
     def setUpClass(cls):
         cls.board_store = othello_model.BoardStore()
         cls.db_conn = MongoClient('mongodb://127.0.0.1:27017')
-        cls.collection = db_conn.Othello_unittest.board_data
+        cls.collection = cls.db_conn.Othello_unittest.board_data
         
     @classmethod
     def tearDownClass(cls):
