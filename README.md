@@ -5,7 +5,7 @@ Developed with Python 3
 
 Requirements:
 - Flask 0.10.x.
-- mysql.connector Python package
+- Mongo database and mongopy package
 - JS library Sammy 0.7.6 (included in repository)
 - Other JS libraries obtained from CDNs
 
@@ -24,14 +24,14 @@ Unit test for above.
 
 ### othello_model.py
 
-Handles DB (mySQL) storage.  One class which extends the othello.py 
+Handles DB (mongo) storage.  One class which extends the othello.py 
 class, adding properties to stores its own DB keys, and methods to
 provide its own URI, and make JSON friendly version of itself.
 
 Key principle if that database stored game states are immutable. I.e.
 if a game state is retrieved from the DB, and a move is made, then
 upon saving it stores a new version. This is to allow GET-ing of 
-earliet game states.
+earlier game states.
 
 ### test_othello_model.py
 
@@ -49,13 +49,6 @@ Unit test the above.
 ### config.cfg
 
 Flask and DB config properties. Amend your own as needed.
-
-### make_table.sql
-
-Table structure for storing the game states. Note, this is for
-information only - you will need to set up your own deployment
-and/or testing DB environment. Neither this code nor Flask will
-create a test environment on the fly. (Unlike Django for example.)
 
 ### sammy-0.7.6.min.js
 
