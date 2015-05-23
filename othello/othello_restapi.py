@@ -6,7 +6,7 @@ from werkzeug.exceptions import NotFound, BadRequest
 from othello.ml.strategies import strategies
 import pickle
 from othello.othello import GameCompleteError, InvalidMoveError, NoAvailablePlayError
-app = Flask(__name__)
+app = Flask(__name__, template_folder='static')
 
 import othello.othello_model as othello_model
 
@@ -33,7 +33,8 @@ def font_redir(font_file):
 
 @app.route('/', methods = ['GET'])
 def home():
-    return redirect(url_for('static', filename='index.html'))
+    #return redirect(url_for('static', filename='index.html'))
+    return render_template('index.html')
 
 @app.route('/game', methods = ['GET'])
 def start_info():
