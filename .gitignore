@@ -3,10 +3,11 @@
 
 analysis/pybrain/*.pickle.*
 bower_components
-othello/static/bootstrap.*
-othello/static/glyphicons-*
-othello/static/jquery.*
-othello/static/knockout.js
+
+othello/static/bootstrap
+othello/static/jquery
+othello/static/knockout
+othello/static/sammy
 
 
 # Byte-compiled / optimized / DLL files
