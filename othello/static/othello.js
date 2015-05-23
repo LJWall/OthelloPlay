@@ -188,7 +188,7 @@ function OthelloModelView() {
 
 
     self.newGame = function (size) {
-        $.ajax('/game', {
+        $.ajax('game', {
             data: ko.toJSON({game_size: size}),
             type: "post",
             contentType: "application/json",
