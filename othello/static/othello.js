@@ -214,7 +214,7 @@ function OthelloModelView() {
         }
         self.chosen_algorithm(self.algorithms()[0]);
     };
-    $.getJSON('../game', self.loadAlgorithms);
+    $.getJSON('game', self.loadAlgorithms);
 }
 
 ko.applyBindings(new OthelloModelView());
